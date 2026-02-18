@@ -9,7 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 837641630750297816}
+  - component: {fileID: 2532337880609987497}
   - component: {fileID: 4279203331079284692}
+  - component: {fileID: 3486336890203979367}
+  - component: {fileID: 2706516319134938635}
   m_Layer: 0
   m_Name: Unit
   m_TagString: Untagged
@@ -33,6 +36,33 @@ Transform:
   - {fileID: 3235707085889503420}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &2532337880609987497
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137084705260282136}
+  serializedVersion: 5
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 1
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 80
+  m_CollisionDetection: 0
 --- !u!114 &4279203331079284692
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,6 +77,49 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teamId: 0
   isAlive: 1
+  moveRange: 6
+  maxHealth: 100
+  currentHealth: 100
+--- !u!114 &3486336890203979367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137084705260282136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d10e3b6b3a65586408e1a5e72b103497, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  turnManager: {fileID: 0}
+  moveAction: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  jumpAction: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  cameraTransform: {fileID: 0}
+  moveSpeed: 4.5
+  jumpDuration: 0.5
+  jumpHeight: 1
+  jumpForwardDistance: 2
+--- !u!114 &2706516319134938635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137084705260282136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3651fa50231714498045151762f4d8f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  turnManager: {fileID: 0}
+  action1: {fileID: 3971001460759373254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  action2: {fileID: 3019239646227655456, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  action3: {fileID: -4302872500677575893, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  confirmAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  slot1: {fileID: 11400000, guid: bb0be70c7005f5f41976be58cf6b89a9, type: 2}
+  slot2: {fileID: 0}
+  slot3: {fileID: 0}
 --- !u!1 &1330944832443412063
 GameObject:
   m_ObjectHideFlags: 0
