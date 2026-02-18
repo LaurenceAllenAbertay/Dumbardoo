@@ -28,6 +28,9 @@ public class UnitActionController : MonoBehaviour
     private Unit unit;
     private UnitAction selectedAction;
     private bool actionUsed;
+    private bool isCharging;
+    private float chargeTime;
+    private float currentChargeForce;
 
     private void Awake()
     {
@@ -39,7 +42,7 @@ public class UnitActionController : MonoBehaviour
         Bind(action1, OnAction1);
         Bind(action2, OnAction2);
         Bind(action3, OnAction3);
-        Bind(confirmAction, OnConfirm);
+        BindConfirm();
 
         if (turnManager != null)
         {
@@ -54,7 +57,7 @@ public class UnitActionController : MonoBehaviour
         Unbind(action1, OnAction1);
         Unbind(action2, OnAction2);
         Unbind(action3, OnAction3);
-        Unbind(confirmAction, OnConfirm);
+        UnbindConfirm();
 
         if (turnManager != null)
         {
@@ -91,10 +94,54 @@ public class UnitActionController : MonoBehaviour
             return;
         }
 
-        if (selectedAction.TryExecute(unit, turnManager))
+        if (selectedAction is GrenadeAction)
         {
-            actionUsed = true;
+            return;
         }
+
+        ExecuteSelected();
+    }
+
+    private void OnConfirmStarted(InputAction.CallbackContext context)
+    {
+        if (selectedAction == null || actionUsed)
+        {
+            return;
+        }
+
+        GrenadeAction grenade = selectedAction as GrenadeAction;
+        if (grenade == null)
+        {
+            return;
+        }
+
+        if (!IsMyActionPhase())
+        {
+            return;
+        }
+
+        isCharging = true;
+        chargeTime = 0f;
+        currentChargeForce = grenade.MinThrowForce;
+    }
+
+    private void OnConfirmCanceled(InputAction.CallbackContext context)
+    {
+        if (!isCharging)
+        {
+            return;
+        }
+
+        isCharging = false;
+
+        GrenadeAction grenade = selectedAction as GrenadeAction;
+        if (grenade == null)
+        {
+            return;
+        }
+
+        grenade.SetThrowForce(currentChargeForce);
+        ExecuteSelected();
     }
 
     private void Select(UnitAction action)
@@ -109,7 +156,21 @@ public class UnitActionController : MonoBehaviour
             return;
         }
 
+        if (selectedAction == action)
+        {
+            Debug.Log($"{unit.name} canceled {action.ActionName}.");
+            selectedAction = null;
+            isCharging = false;
+            return;
+        }
+
+        if (selectedAction != null)
+        {
+            Debug.Log($"{unit.name} canceled {selectedAction.ActionName}.");
+        }
+
         selectedAction = action;
+        Debug.Log($"{unit.name} selected {action.ActionName}.");
     }
 
     private bool IsMyActionPhase()
@@ -148,6 +209,9 @@ public class UnitActionController : MonoBehaviour
     {
         selectedAction = null;
         actionUsed = false;
+        isCharging = false;
+        chargeTime = 0f;
+        currentChargeForce = 0f;
     }
 
     private void OnDrawGizmos()
@@ -176,6 +240,31 @@ public class UnitActionController : MonoBehaviour
         Gizmos.DrawWireSphere(origin, punch.HitRadius);
     }
 
+    private void Update()
+    {
+        if (!isCharging)
+        {
+            return;
+        }
+
+        GrenadeAction grenade = selectedAction as GrenadeAction;
+        if (grenade == null)
+        {
+            isCharging = false;
+            return;
+        }
+
+        if (!IsMyActionPhase() || actionUsed)
+        {
+            isCharging = false;
+            return;
+        }
+
+        chargeTime += Time.deltaTime;
+        float t = Mathf.PingPong(chargeTime * grenade.ChargeSpeed, 1f);
+        currentChargeForce = Mathf.Lerp(grenade.MinThrowForce, grenade.MaxThrowForce, t);
+    }
+
     private static void Bind(InputActionReference actionRef, System.Action<InputAction.CallbackContext> handler)
     {
         if (actionRef == null || actionRef.action == null)
@@ -196,5 +285,39 @@ public class UnitActionController : MonoBehaviour
 
         actionRef.action.performed -= handler;
         actionRef.action.Disable();
+    }
+
+    private void BindConfirm()
+    {
+        if (confirmAction == null || confirmAction.action == null)
+        {
+            return;
+        }
+
+        confirmAction.action.performed += OnConfirm;
+        confirmAction.action.started += OnConfirmStarted;
+        confirmAction.action.canceled += OnConfirmCanceled;
+        confirmAction.action.Enable();
+    }
+
+    private void UnbindConfirm()
+    {
+        if (confirmAction == null || confirmAction.action == null)
+        {
+            return;
+        }
+
+        confirmAction.action.performed -= OnConfirm;
+        confirmAction.action.started -= OnConfirmStarted;
+        confirmAction.action.canceled -= OnConfirmCanceled;
+        confirmAction.action.Disable();
+    }
+
+    private void ExecuteSelected()
+    {
+        if (selectedAction.TryExecute(unit, turnManager))
+        {
+            actionUsed = true;
+        }
     }
 }

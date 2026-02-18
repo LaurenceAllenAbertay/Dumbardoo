@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e8cb7ddbbe909547bedce1bc38b6216, type: 3}
   m_Name: Gun
   m_EditorClassIdentifier: 
-  actionName: Action
+  actionName: Gun
   maxRange: 30
   damage: 8
   hitMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 64

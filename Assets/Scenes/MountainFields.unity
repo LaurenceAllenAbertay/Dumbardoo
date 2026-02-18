@@ -1489,6 +1489,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: bb0be70c7005f5f41976be58cf6b89a9, type: 2}
     - target: {fileID: 2706516319134938635, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: slot3
+      value: 
+      objectReference: {fileID: 11400000, guid: 52a833450585df049b18795c48df36f2, type: 2}
+    - target: {fileID: 2706516319134938635, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
       value: 
       objectReference: {fileID: 241064153}

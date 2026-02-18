@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0f303b33bfcf8245911b967ce9beda6, type: 3}
+  m_Name: Grenade
+  m_EditorClassIdentifier: 
+  actionName: Grenade
+  grenadePrefab: {fileID: 2269527813549029088, guid: cd5c5df60fe686f46acda8fe2a4aee00, type: 3}
+  minThrowForce: 2
+  maxThrowForce: 14
+  chargeSpeed: 1.5
+  spawnOffset: {x: 0, y: 1.2, z: 0.6}
+  fuseSeconds: 3
+  explosionRadius: 3
+  damage: 20
+  explosionForce: 12
+  explosionUpForce: 3
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 64
