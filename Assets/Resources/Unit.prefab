@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 4279203331079284692}
   - component: {fileID: 3486336890203979367}
   - component: {fileID: 2706516319134938635}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Unit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,8 +118,10 @@ MonoBehaviour:
   action3: {fileID: -4302872500677575893, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   confirmAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   slot1: {fileID: 11400000, guid: bb0be70c7005f5f41976be58cf6b89a9, type: 2}
-  slot2: {fileID: 0}
+  slot2: {fileID: 11400000, guid: c96945ca00ba33d49b76237cd8fe9bcf, type: 2}
   slot3: {fileID: 0}
+  showPunchGizmo: 1
+  punchGizmoColor: {r: 1, g: 0.4, b: 0.2, a: 0.35}
 --- !u!1 &1330944832443412063
 GameObject:
   m_ObjectHideFlags: 0
@@ -132,7 +134,7 @@ GameObject:
   - component: {fileID: 3043037828810638662}
   - component: {fileID: 5219997620996668671}
   - component: {fileID: 395408029202714589}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}

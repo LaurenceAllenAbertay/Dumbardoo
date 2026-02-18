@@ -18,6 +18,7 @@ public class PunchAction : UnitAction
     {
         Vector3 origin = unit.transform.position + unit.transform.forward * range;
         Collider[] hits = Physics.OverlapSphere(origin, hitRadius, hitMask, QueryTriggerInteraction.Ignore);
+        bool hitAny = false;
 
         foreach (Collider hit in hits)
         {
@@ -32,7 +33,8 @@ public class PunchAction : UnitAction
                 continue;
             }
 
-            target.ApplyDamage(damage);
+            target.ApplyDamage(damage, unit, ActionName);
+            hitAny = true;
 
             Rigidbody body = hit.attachedRigidbody ?? target.GetComponent<Rigidbody>();
             if (body != null)
@@ -43,6 +45,11 @@ public class PunchAction : UnitAction
                 Vector3 force = worldDir * knockbackForce + Vector3.up * knockbackUpForce;
                 body.AddForce(force, ForceMode.VelocityChange);
             }
+        }
+
+        if (!hitAny)
+        {
+            Debug.Log($"{unit.name} used {ActionName} but hit nothing.");
         }
     }
 }

@@ -60,12 +60,21 @@ public class Unit : MonoBehaviour
 
     public void ApplyDamage(int amount)
     {
+        ApplyDamage(amount, null, null);
+    }
+
+    public void ApplyDamage(int amount, Unit source, string actionName)
+    {
         if (!isAlive || amount <= 0)
         {
             return;
         }
 
         currentHealth = Mathf.Max(0, currentHealth - amount);
+        string sourceName = source != null ? source.name : "Unknown";
+        string actionLabel = string.IsNullOrWhiteSpace(actionName) ? "UnknownAction" : actionName;
+        Debug.Log($"{sourceName} used {actionLabel} on {name} for {amount} damage.");
+
         if (currentHealth == 0)
         {
             SetAlive(false);
