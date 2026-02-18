@@ -5,6 +5,13 @@ using UnityEngine.InputSystem;
 
 public class TurnManager : MonoBehaviour
 {
+    public enum TurnPhase
+    {
+        None,
+        Movement,
+        Action
+    }
+
     [SerializeField] private InputActionReference endTurnAction;
     [SerializeField] private bool randomizeTurnOrder = true;
     [SerializeField] private bool autoStart = true;
@@ -12,10 +19,14 @@ public class TurnManager : MonoBehaviour
     private readonly List<Unit> turnOrder = new List<Unit>();
     private int currentIndex = -1;
     private bool started;
+    private Vector3 currentTurnStartPosition;
 
     public Unit CurrentUnit { get; private set; }
+    public TurnPhase Phase { get; private set; } = TurnPhase.None;
+    public Vector3 CurrentTurnStartPosition => currentTurnStartPosition;
     public event Action<Unit> TurnStarted;
     public event Action<Unit> TurnEnded;
+    public event Action<TurnPhase> PhaseChanged;
     public event Action<int> TeamWon;
 
     private void OnEnable()
@@ -86,6 +97,12 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
+        if (Phase == TurnPhase.Movement)
+        {
+            EndMovementPhase();
+            return;
+        }
+
         if (CurrentUnit != null)
         {
             CurrentUnit.EndTurn();
@@ -93,6 +110,17 @@ public class TurnManager : MonoBehaviour
         }
 
         AdvanceToNextUnit();
+    }
+
+    public void EndMovementPhase()
+    {
+        if (Phase != TurnPhase.Movement)
+        {
+            return;
+        }
+
+        Phase = TurnPhase.Action;
+        PhaseChanged?.Invoke(Phase);
     }
 
     private void AdvanceToNextUnit()
@@ -112,6 +140,9 @@ public class TurnManager : MonoBehaviour
             {
                 CurrentUnit = candidate;
                 CurrentUnit.BeginTurn();
+                currentTurnStartPosition = CurrentUnit.transform.position;
+                Phase = TurnPhase.Movement;
+                PhaseChanged?.Invoke(Phase);
                 TurnStarted?.Invoke(CurrentUnit);
                 return;
             }
