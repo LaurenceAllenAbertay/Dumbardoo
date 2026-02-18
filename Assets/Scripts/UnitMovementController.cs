@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Unit))]
+[RequireComponent(typeof(Rigidbody))]
 public class UnitMovementController : MonoBehaviour
 {
     [Header("References")]
@@ -14,20 +15,39 @@ public class UnitMovementController : MonoBehaviour
     [SerializeField] private float moveSpeed = 4.5f;
 
     [Header("Jump")]
-    [SerializeField] private float jumpDuration = 0.5f;
     [SerializeField] private float jumpHeight = 1f;
-    [SerializeField] private float jumpForwardDistance = 2f;
+    [SerializeField] private float jumpForwardSpeed = 6f;
+
+    [Header("Grounding")]
+    [SerializeField] private float groundCheckRadius = 0.25f;
+    [SerializeField] private float groundCheckDistance = 0.2f;
+    [SerializeField] private LayerMask groundMask = ~0;
 
     private Unit unit;
+    private Rigidbody body;
     private Vector2 moveInput;
     private bool isJumping;
-    private float jumpElapsed;
-    private Vector3 jumpStart;
-    private Vector3 jumpEnd;
+    private bool wasGrounded;
+    private bool loggedMissingRefs;
 
     private void Awake()
     {
         unit = GetComponent<Unit>();
+        body = GetComponent<Rigidbody>();
+        body.freezeRotation = true;
+        body.useGravity = true;
+        body.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+        body.interpolation = RigidbodyInterpolation.Interpolate;
+
+        if (turnManager == null)
+        {
+            turnManager = FindFirstObjectByType<TurnManager>();
+        }
+
+        if (cameraTransform == null && Camera.main != null)
+        {
+            cameraTransform = Camera.main.transform;
+        }
     }
 
     private void OnEnable()
@@ -62,22 +82,6 @@ public class UnitMovementController : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (!IsMyMovementPhase())
-        {
-            return;
-        }
-
-        if (isJumping)
-        {
-            UpdateJump();
-            return;
-        }
-
-        UpdateMovement();
-    }
-
     private bool IsMyMovementPhase()
     {
         return unit.IsTurnActive
@@ -86,19 +90,66 @@ public class UnitMovementController : MonoBehaviour
             && turnManager.Phase == TurnManager.TurnPhase.Movement;
     }
 
-    private void UpdateMovement()
+    private void FixedUpdate()
     {
-        Vector3 direction = GetMoveDirection();
-        if (direction.sqrMagnitude <= 0f)
+        if (!EnsureReferences())
         {
             return;
         }
 
-        Vector3 delta = direction * (moveSpeed * Time.deltaTime);
-        Vector3 nextPosition = transform.position + delta;
-        nextPosition = ClampToMoveRange(nextPosition);
-        transform.position = nextPosition;
-        transform.rotation = Quaternion.LookRotation(direction, Vector3.up);
+        bool grounded = CheckGrounded();
+
+        if (!IsMyMovementPhase())
+        {
+            wasGrounded = grounded;
+            return;
+        }
+
+        if (isJumping && grounded && !wasGrounded)
+        {
+            isJumping = false;
+            OnLanded();
+        }
+
+        UpdateMovement(grounded);
+
+        wasGrounded = grounded;
+    }
+
+    private void UpdateMovement(bool grounded)
+    {
+        bool allowMove = IsMyMovementPhase() && grounded && !isJumping;
+        Vector3 velocity = body.linearVelocity;
+        Vector3 direction = Vector3.zero;
+
+        if (allowMove)
+        {
+            direction = GetMoveDirection();
+            Vector3 desiredHorizontal = direction * moveSpeed;
+            Vector3 currentPosition = body.position;
+            Vector3 targetPosition = currentPosition + desiredHorizontal * Time.fixedDeltaTime;
+            targetPosition = ClampToMoveRange(targetPosition);
+            Vector3 horizontalVelocity = (targetPosition - currentPosition) / Time.fixedDeltaTime;
+            velocity.x = horizontalVelocity.x;
+            velocity.z = horizontalVelocity.z;
+        }
+        else if (grounded && !isJumping)
+        {
+            velocity.x = 0f;
+            velocity.z = 0f;
+        }
+
+        if (grounded && !isJumping)
+        {
+            velocity.y = 0f;
+        }
+
+        body.linearVelocity = velocity;
+
+        if (allowMove && direction.sqrMagnitude > 0f)
+        {
+            body.MoveRotation(Quaternion.LookRotation(direction, Vector3.up));
+        }
     }
 
     private Vector3 GetMoveDirection()
@@ -142,44 +193,36 @@ public class UnitMovementController : MonoBehaviour
 
     private void OnJumpPerformed(InputAction.CallbackContext context)
     {
-        if (!IsMyMovementPhase() || isJumping)
+        if (!IsMyMovementPhase() || isJumping || !CheckGrounded())
         {
             return;
         }
 
-        Vector3 forward = transform.forward;
-        jumpStart = transform.position;
-        jumpEnd = jumpStart + forward * jumpForwardDistance;
-        jumpElapsed = 0f;
         isJumping = true;
-    }
-
-    private void UpdateJump()
-    {
-        jumpElapsed += Time.deltaTime;
-        float t = Mathf.Clamp01(jumpElapsed / Mathf.Max(0.01f, jumpDuration));
-        float height = 4f * t * (1f - t) * jumpHeight;
-
-        Vector3 position = Vector3.Lerp(jumpStart, jumpEnd, t);
-        position.y += height;
-        transform.position = position;
-
-        if (t >= 1f)
-        {
-            isJumping = false;
-            OnLanded();
-        }
+        float jumpVelocity = Mathf.Sqrt(2f * Mathf.Abs(Physics.gravity.y) * jumpHeight);
+        Transform cam = cameraTransform != null ? cameraTransform : Camera.main?.transform;
+        Vector3 forward = cam != null ? cam.forward : transform.forward;
+        forward.y = 0f;
+        forward.Normalize();
+        Vector3 jumpForward = forward * jumpForwardSpeed;
+        body.linearVelocity = new Vector3(jumpForward.x, jumpVelocity, jumpForward.z);
     }
 
     private void OnLanded()
     {
         Vector3 origin = turnManager.CurrentTurnStartPosition;
-        Vector3 offset = transform.position - origin;
+        Vector3 offset = body.position - origin;
         offset.y = 0f;
         if (offset.sqrMagnitude > unit.MoveRange * unit.MoveRange)
         {
             turnManager.EndMovementPhase();
         }
+    }
+
+    private bool CheckGrounded()
+    {
+        Vector3 origin = body.position + Vector3.up * 0.05f;
+        return Physics.SphereCast(origin, groundCheckRadius, Vector3.down, out _, groundCheckDistance, groundMask, QueryTriggerInteraction.Ignore);
     }
 
     private void OnMovePerformed(InputAction.CallbackContext context)
@@ -190,5 +233,20 @@ public class UnitMovementController : MonoBehaviour
     private void OnMoveCanceled(InputAction.CallbackContext context)
     {
         moveInput = Vector2.zero;
+    }
+
+    private bool EnsureReferences()
+    {
+        if (turnManager == null || moveAction == null || jumpAction == null)
+        {
+            if (!loggedMissingRefs)
+            {
+                Debug.LogWarning($"{name} UnitMovementController missing refs. TurnManager: {(turnManager != null)}, MoveAction: {(moveAction != null)}, JumpAction: {(jumpAction != null)}");
+                loggedMissingRefs = true;
+            }
+            return false;
+        }
+
+        return true;
     }
 }
