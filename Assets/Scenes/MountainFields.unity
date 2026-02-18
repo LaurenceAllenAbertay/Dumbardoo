@@ -336,7 +336,7 @@ PrefabInstance:
       objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpHeight
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
@@ -348,7 +348,7 @@ PrefabInstance:
       objectReference: {fileID: 330585546}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpForwardSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckRadius
@@ -366,10 +366,30 @@ PrefabInstance:
       propertyPath: teamId
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5219997620996668671, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d704ea68625b01c42b541e277e8c82aa, type: 2}
+    - target: {fileID: 8329017962231041088, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -849,7 +869,7 @@ PrefabInstance:
       objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpHeight
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
@@ -861,7 +881,7 @@ PrefabInstance:
       objectReference: {fileID: 330585546}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpForwardSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckRadius
@@ -879,10 +899,30 @@ PrefabInstance:
       propertyPath: teamId
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5219997620996668671, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d704ea68625b01c42b541e277e8c82aa, type: 2}
+    - target: {fileID: 8329017962231041088, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1015,7 +1055,7 @@ PrefabInstance:
       objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpHeight
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
@@ -1027,7 +1067,7 @@ PrefabInstance:
       objectReference: {fileID: 330585546}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpForwardSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckRadius
@@ -1041,10 +1081,30 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5219997620996668671, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: a3fe0ebe282cda04cbf199a7a81c0b5a, type: 2}
+    - target: {fileID: 8329017962231041088, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1310,7 +1370,7 @@ PrefabInstance:
       objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpHeight
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
@@ -1322,7 +1382,7 @@ PrefabInstance:
       objectReference: {fileID: 330585546}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpForwardSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckRadius
@@ -1336,10 +1396,30 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5219997620996668671, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: a3fe0ebe282cda04cbf199a7a81c0b5a, type: 2}
+    - target: {fileID: 8329017962231041088, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1454,7 +1534,7 @@ PrefabInstance:
       objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpHeight
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
@@ -1466,7 +1546,7 @@ PrefabInstance:
       objectReference: {fileID: 330585546}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpForwardSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckRadius
@@ -1480,10 +1560,30 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5219997620996668671, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: a3fe0ebe282cda04cbf199a7a81c0b5a, type: 2}
+    - target: {fileID: 8329017962231041088, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1602,7 +1702,7 @@ PrefabInstance:
       objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpHeight
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
@@ -1614,7 +1714,7 @@ PrefabInstance:
       objectReference: {fileID: 330585546}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpForwardSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckRadius
@@ -1632,10 +1732,30 @@ PrefabInstance:
       propertyPath: teamId
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5219997620996668671, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d704ea68625b01c42b541e277e8c82aa, type: 2}
+    - target: {fileID: 8329017962231041088, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1846,7 +1966,7 @@ PrefabInstance:
       objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpHeight
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
@@ -1858,7 +1978,7 @@ PrefabInstance:
       objectReference: {fileID: 330585546}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpForwardSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckRadius
@@ -1876,10 +1996,30 @@ PrefabInstance:
       propertyPath: teamId
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5219997620996668671, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d704ea68625b01c42b541e277e8c82aa, type: 2}
+    - target: {fileID: 8329017962231041088, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2010,7 +2150,7 @@ PrefabInstance:
       objectReference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpHeight
-      value: 2
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: turnManager
@@ -2022,7 +2162,7 @@ PrefabInstance:
       objectReference: {fileID: 330585546}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: jumpForwardSpeed
-      value: 6
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckRadius
@@ -2036,10 +2176,30 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5125851910579564712, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5219997620996668671, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: a3fe0ebe282cda04cbf199a7a81c0b5a, type: 2}
+    - target: {fileID: 8329017962231041088, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

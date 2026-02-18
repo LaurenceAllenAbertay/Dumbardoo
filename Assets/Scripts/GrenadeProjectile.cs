@@ -6,6 +6,7 @@ public class GrenadeProjectile : MonoBehaviour
     [SerializeField] private float fuseSeconds = 3f;
     [SerializeField] private float explosionRadius = 3f;
     [SerializeField] private int damage = 20;
+    [SerializeField, Range(0f, 1f)] private float minDamagePercent = 0.2f;
     [SerializeField] private float explosionForce = 12f;
     [SerializeField] private float explosionUpForce = 3f;
     [SerializeField] private LayerMask hitMask = ~0;
@@ -64,7 +65,8 @@ public class GrenadeProjectile : MonoBehaviour
                 continue;
             }
 
-            target.ApplyDamage(damage, sourceUnit, actionName);
+            int appliedDamage = CalculateDamage(hit);
+            target.ApplyDamage(appliedDamage, sourceUnit, actionName);
             hitAny = true;
 
             Rigidbody body = hit.attachedRigidbody ?? target.GetComponent<Rigidbody>();
@@ -80,5 +82,19 @@ public class GrenadeProjectile : MonoBehaviour
         }
 
         Destroy(gameObject);
+    }
+
+    private int CalculateDamage(Collider hit)
+    {
+        if (explosionRadius <= 0f)
+        {
+            return damage;
+        }
+
+        Vector3 closest = hit.ClosestPoint(transform.position);
+        float distance = Vector3.Distance(transform.position, closest);
+        float t = Mathf.Clamp01(distance / explosionRadius);
+        float minDamage = damage * minDamagePercent;
+        return Mathf.RoundToInt(Mathf.Lerp(damage, minDamage, t));
     }
 }

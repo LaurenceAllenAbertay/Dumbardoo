@@ -45,6 +45,7 @@ public class GrenadeAction : UnitAction
 
         Vector3 spawnPos = unit.transform.TransformPoint(spawnOffset);
         GrenadeProjectile grenade = Object.Instantiate(grenadePrefab, spawnPos, Quaternion.identity);
+        grenade.transform.rotation = Random.rotation;
         grenade.Initialize(unit, ActionName, fuseSeconds, explosionRadius, damage, explosionForce, explosionUpForce, hitMask);
 
         Rigidbody body = grenade.GetComponent<Rigidbody>();

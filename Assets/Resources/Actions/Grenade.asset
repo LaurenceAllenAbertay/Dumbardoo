@@ -19,7 +19,7 @@ MonoBehaviour:
   chargeSpeed: 1.5
   spawnOffset: {x: 0, y: 1.2, z: 0.6}
   fuseSeconds: 3
-  explosionRadius: 3
+  explosionRadius: 6
   damage: 20
   explosionForce: 12
   explosionUpForce: 3
