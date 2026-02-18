@@ -362,6 +362,14 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: bd11f545250731d43b4c67ae50282aaf, type: 2}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 4279203331079284692, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: teamId
       value: 1
@@ -895,6 +903,14 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: bd11f545250731d43b4c67ae50282aaf, type: 2}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 4279203331079284692, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: teamId
       value: 1
@@ -1080,6 +1096,14 @@ PrefabInstance:
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckDistance
       value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: bd11f545250731d43b4c67ae50282aaf, type: 2}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1396,6 +1420,14 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: bd11f545250731d43b4c67ae50282aaf, type: 2}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -1441,8 +1473,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 652516930}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
+  m_Mass: 5
+  m_LinearDamping: 0.2
   m_AngularDamping: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -1560,6 +1592,14 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: bd11f545250731d43b4c67ae50282aaf, type: 2}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -1605,8 +1645,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 946540527}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
+  m_Mass: 5
+  m_LinearDamping: 0.2
   m_AngularDamping: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -1728,6 +1768,14 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: bd11f545250731d43b4c67ae50282aaf, type: 2}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 4279203331079284692, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: teamId
       value: 1
@@ -1777,8 +1825,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 917680605}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
+  m_Mass: 5
+  m_LinearDamping: 0.2
   m_AngularDamping: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -1809,8 +1857,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1696753652}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
+  m_Mass: 5
+  m_LinearDamping: 0.2
   m_AngularDamping: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -1841,8 +1889,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1773626555}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
+  m_Mass: 5
+  m_LinearDamping: 0.2
   m_AngularDamping: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -1873,8 +1921,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1933090941}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
+  m_Mass: 5
+  m_LinearDamping: 0.2
   m_AngularDamping: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -1992,6 +2040,14 @@ PrefabInstance:
       propertyPath: groundCheckDistance
       value: 0.6
       objectReference: {fileID: 0}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: bd11f545250731d43b4c67ae50282aaf, type: 2}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
+      objectReference: {fileID: 0}
     - target: {fileID: 4279203331079284692, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: teamId
       value: 1
@@ -2041,8 +2097,8 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 568007644}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
+  m_Mass: 5
+  m_LinearDamping: 0.2
   m_AngularDamping: 0
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -2121,12 +2177,20 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2532337880609987497, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Mass
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2532337880609987497, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: m_Constraints
       value: 80
       objectReference: {fileID: 0}
     - target: {fileID: 2532337880609987497, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: m_Interpolate
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2532337880609987497, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_LinearDamping
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 2532337880609987497, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: m_AngularDamping
@@ -2175,6 +2239,14 @@ PrefabInstance:
     - target: {fileID: 3486336890203979367, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: groundCheckDistance
       value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 13400000, guid: bd11f545250731d43b4c67ae50282aaf, type: 2}
+    - target: {fileID: 4124702977087221076, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 64
       objectReference: {fileID: 0}
     - target: {fileID: 4909670583990481195, guid: 74d8fd3dd6c7c734981920770dbe93a4, type: 3}
       propertyPath: m_AnchorMax.x

@@ -65,14 +65,16 @@ public class GrenadeProjectile : MonoBehaviour
                 continue;
             }
 
-            int appliedDamage = CalculateDamage(hit);
+            int appliedDamage = CalculateDamage(hit, out float falloff);
             target.ApplyDamage(appliedDamage, sourceUnit, actionName);
             hitAny = true;
 
             Rigidbody body = hit.attachedRigidbody ?? target.GetComponent<Rigidbody>();
             if (body != null)
             {
-                body.AddExplosionForce(explosionForce, transform.position, explosionRadius, explosionUpForce, ForceMode.VelocityChange);
+                float force = explosionForce * falloff;
+                float upForce = explosionUpForce * falloff;
+                body.AddExplosionForce(force, transform.position, explosionRadius, upForce, ForceMode.VelocityChange);
             }
         }
 
@@ -84,8 +86,9 @@ public class GrenadeProjectile : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private int CalculateDamage(Collider hit)
+    private int CalculateDamage(Collider hit, out float falloff)
     {
+        falloff = 1f;
         if (explosionRadius <= 0f)
         {
             return damage;
@@ -94,6 +97,7 @@ public class GrenadeProjectile : MonoBehaviour
         Vector3 closest = hit.ClosestPoint(transform.position);
         float distance = Vector3.Distance(transform.position, closest);
         float t = Mathf.Clamp01(distance / explosionRadius);
+        falloff = Mathf.Lerp(1f, minDamagePercent, t);
         float minDamage = damage * minDamagePercent;
         return Mathf.RoundToInt(Mathf.Lerp(damage, minDamage, t));
     }

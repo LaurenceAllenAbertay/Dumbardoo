@@ -200,11 +200,20 @@ public class UnitMovementController : MonoBehaviour
 
         isJumping = true;
         float jumpVelocity = Mathf.Sqrt(2f * Mathf.Abs(Physics.gravity.y) * jumpHeight);
-        Transform cam = cameraTransform != null ? cameraTransform : Camera.main?.transform;
-        Vector3 forward = cam != null ? cam.forward : transform.forward;
-        forward.y = 0f;
-        forward.Normalize();
-        Vector3 jumpForward = forward * jumpForwardSpeed;
+        Vector3 jumpDir;
+        if (moveInput.sqrMagnitude > 0f)
+        {
+            jumpDir = GetMoveDirection();
+        }
+        else
+        {
+            Transform cam = cameraTransform != null ? cameraTransform : Camera.main?.transform;
+            jumpDir = cam != null ? cam.forward : transform.forward;
+            jumpDir.y = 0f;
+            jumpDir.Normalize();
+        }
+
+        Vector3 jumpForward = jumpDir * jumpForwardSpeed;
         body.linearVelocity = new Vector3(jumpForward.x, jumpVelocity, jumpForward.z);
     }
 

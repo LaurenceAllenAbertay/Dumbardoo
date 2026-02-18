@@ -9,11 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8147044408379481505}
+  - component: {fileID: 2269527813549029088}
   - component: {fileID: 1039912725360863237}
   - component: {fileID: 4721679482062072956}
   - component: {fileID: 7919385132788383566}
   - component: {fileID: 390926641520753128}
-  - component: {fileID: 2269527813549029088}
   m_Layer: 0
   m_Name: Grenade
   m_TagString: Untagged
@@ -36,6 +36,27 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 3.4, y: 10.7, z: 19.56}
+--- !u!114 &2269527813549029088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4312725666980796517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 620eacad74ce2e247a199f5a60415f11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fuseSeconds: 3
+  explosionRadius: 3
+  damage: 20
+  minDamagePercent: 0.1
+  explosionForce: 12
+  explosionUpForce: 3
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!33 &1039912725360863237
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -96,7 +117,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4312725666980796517}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: f8943f9656b341a449f28e93802a68ad, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -120,9 +141,9 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4312725666980796517}
   serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
+  m_Mass: 10
+  m_LinearDamping: 0.5
+  m_AngularDamping: 0.2
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
@@ -139,23 +160,3 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &2269527813549029088
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4312725666980796517}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 620eacad74ce2e247a199f5a60415f11, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fuseSeconds: 3
-  explosionRadius: 3
-  damage: 20
-  explosionForce: 12
-  explosionUpForce: 3
-  hitMask:
-    serializedVersion: 2
-    m_Bits: 4294967295

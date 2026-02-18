@@ -47,6 +47,7 @@ public class GrenadeAction : UnitAction
         GrenadeProjectile grenade = Object.Instantiate(grenadePrefab, spawnPos, Quaternion.identity);
         grenade.transform.rotation = Random.rotation;
         grenade.Initialize(unit, ActionName, fuseSeconds, explosionRadius, damage, explosionForce, explosionUpForce, hitMask);
+        IgnoreThrowerCollision(grenade, unit);
 
         Rigidbody body = grenade.GetComponent<Rigidbody>();
         if (body != null)
@@ -57,5 +58,38 @@ public class GrenadeAction : UnitAction
         }
 
         currentThrowForce = -1f;
+    }
+
+    private static void IgnoreThrowerCollision(GrenadeProjectile grenade, Unit unit)
+    {
+        if (grenade == null || unit == null)
+        {
+            return;
+        }
+
+        Collider[] grenadeColliders = grenade.GetComponentsInChildren<Collider>(true);
+        Collider[] unitColliders = unit.GetComponentsInChildren<Collider>(true);
+        if (grenadeColliders.Length == 0 || unitColliders.Length == 0)
+        {
+            return;
+        }
+
+        foreach (Collider grenadeCollider in grenadeColliders)
+        {
+            if (grenadeCollider == null || grenadeCollider.isTrigger)
+            {
+                continue;
+            }
+
+            foreach (Collider unitCollider in unitColliders)
+            {
+                if (unitCollider == null || unitCollider.isTrigger)
+                {
+                    continue;
+                }
+
+                Physics.IgnoreCollision(grenadeCollider, unitCollider, true);
+            }
+        }
     }
 }
