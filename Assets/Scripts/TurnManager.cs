@@ -122,7 +122,14 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
-        if (blockEndTurnUntilCameraReturns
+        // Only block for the camera when the unit is still alive.
+        // A dead unit (e.g. killed mid-jetpack by a KillBox) must always be
+        // able to advance the turn; otherwise the game can freeze permanently
+        // if the camera happens to be in a temporary-follow state when
+        // DeathSequence calls here.
+        bool currentUnitAlive = CurrentUnit != null && CurrentUnit.IsAlive;
+        if (currentUnitAlive
+            && blockEndTurnUntilCameraReturns
             && cameraController != null
             && cameraController.IsTemporaryFollowActive)
         {

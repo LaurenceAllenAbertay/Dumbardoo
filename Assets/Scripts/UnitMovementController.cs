@@ -79,13 +79,15 @@ public class UnitMovementController : MonoBehaviour
         {
             moveAction.action.performed -= OnMovePerformed;
             moveAction.action.canceled -= OnMoveCanceled;
-            moveAction.action.Disable();
+            // Do NOT call .Disable() here. InputActionReferences are shared
+            // assets used by every unit. Disabling one would globally kill
+            // input for every other unit still alive in the scene.
         }
 
         if (jumpAction != null && jumpAction.action != null)
         {
             jumpAction.action.performed -= OnJumpPerformed;
-            jumpAction.action.Disable();
+            // Same reason — do not disable the shared asset.
         }
     }
 

@@ -21,7 +21,11 @@ public class KillBox : MonoBehaviour
             return;
         }
 
-        if (!other.TryGetComponent(out Unit unit))
+        // TryGetComponent only checks the exact GameObject the collider is on.
+        // Units frequently have their physics colliders on child objects, so we
+        // must walk up the hierarchy with GetComponentInParent.
+        Unit unit = other.GetComponentInParent<Unit>();
+        if (unit == null)
         {
             return;
         }

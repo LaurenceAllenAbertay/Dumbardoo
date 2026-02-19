@@ -272,7 +272,8 @@ public class UnitActionController : MonoBehaviour
         }
 
         actionRef.action.performed -= handler;
-        actionRef.action.Disable();
+        // Do NOT call .Disable() here. InputActionReferences are shared assets.
+        // Disabling them on one unit's destruction kills input for all others.
     }
 
     private void BindConfirm()
@@ -298,7 +299,7 @@ public class UnitActionController : MonoBehaviour
         confirmAction.action.performed -= OnConfirm;
         confirmAction.action.started -= OnConfirmStarted;
         confirmAction.action.canceled -= OnConfirmCanceled;
-        confirmAction.action.Disable();
+        // Do NOT call .Disable() here. Same reason as Unbind above.
     }
 
     private void ExecuteSelected()

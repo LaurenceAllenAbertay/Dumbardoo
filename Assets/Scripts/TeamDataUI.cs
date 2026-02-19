@@ -16,6 +16,7 @@ public class TeamDataUI : MonoBehaviour
     [SerializeField] private string teamName = "Team";
 
     private readonly List<Unit> teamUnits = new List<Unit>();
+    private int initialTotalMaxHealth;
     private int lastAliveCount = -1;
     private int lastTotalHealth = -1;
     private int lastMaxHealth = -1;
@@ -70,12 +71,14 @@ public class TeamDataUI : MonoBehaviour
     private void RefreshUnits()
     {
         teamUnits.Clear();
+        initialTotalMaxHealth = 0;
         var units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
         foreach (var unit in units)
         {
             if (unit != null && unit.TeamId == teamId)
             {
                 teamUnits.Add(unit);
+                initialTotalMaxHealth += unit.MaxHealth;
             }
         }
     }
@@ -135,7 +138,6 @@ public class TeamDataUI : MonoBehaviour
         }
 
         int total = 0;
-        int max = 0;
         foreach (var unit in teamUnits)
         {
             if (unit == null || !unit.IsAlive)
@@ -144,8 +146,12 @@ public class TeamDataUI : MonoBehaviour
             }
 
             total += unit.CurrentHealth;
-            max += unit.MaxHealth;
         }
+
+        // Use the fixed initial max so the slider correctly decreases as units
+        // die.  Without this, both total and max shrink together whenever a unit
+        // is pruned from the list, making the bar look unchanged or even rise.
+        int max = Mathf.Max(1, initialTotalMaxHealth);
 
         if (total == lastTotalHealth && max == lastMaxHealth)
         {
@@ -154,8 +160,8 @@ public class TeamDataUI : MonoBehaviour
 
         lastTotalHealth = total;
         lastMaxHealth = max;
-        totalHealthSlider.maxValue = Mathf.Max(1, max);
-        totalHealthSlider.value = Mathf.Clamp(total, 0, totalHealthSlider.maxValue);
+        totalHealthSlider.maxValue = max;
+        totalHealthSlider.value = Mathf.Clamp(total, 0, max);
     }
 
     private void PruneDeadUnits()
