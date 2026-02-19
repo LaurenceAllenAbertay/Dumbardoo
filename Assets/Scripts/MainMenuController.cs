@@ -12,7 +12,7 @@ public class MainMenuController : MonoBehaviour
         public TMP_InputField teamNameInput;
         public TMP_Dropdown unitCountDropdown;
         public Transform unitNamesRoot;
-        public TMP_InputField unitNamePrefab;
+        public GameObject unitNamePrefab;
     }
 
     [Header("Teams")]
@@ -62,7 +62,7 @@ public class MainMenuController : MonoBehaviour
             dropdown.options.Add(new TMP_Dropdown.OptionData(i.ToString()));
         }
 
-        dropdown.value = 0;
+        dropdown.value = Mathf.Clamp(4 - minUnits, 0, maxUnits - minUnits);
         dropdown.RefreshShownValue();
     }
 
@@ -86,7 +86,8 @@ public class MainMenuController : MonoBehaviour
 
         for (int i = 0; i < desired; i++)
         {
-            TMP_InputField field = Instantiate(team.unitNamePrefab, team.unitNamesRoot);
+            GameObject instance = Instantiate(team.unitNamePrefab, team.unitNamesRoot);
+            TMP_InputField field = instance != null ? instance.GetComponentInChildren<TMP_InputField>(true) : null;
             if (field != null && string.IsNullOrWhiteSpace(field.text))
             {
                 field.text = $"Unit {i + 1}";
@@ -132,7 +133,7 @@ public class MainMenuController : MonoBehaviour
             {
                 for (int i = 0; i < team.unitNamesRoot.childCount; i++)
                 {
-                    TMP_InputField field = team.unitNamesRoot.GetChild(i).GetComponent<TMP_InputField>();
+                    TMP_InputField field = team.unitNamesRoot.GetChild(i).GetComponentInChildren<TMP_InputField>(true);
                     if (field != null && !string.IsNullOrWhiteSpace(field.text))
                     {
                         unitNames.Add(field.text);

@@ -20,36 +20,29 @@ public class UnitActionController : MonoBehaviour
     [SerializeField] private bool showPunchGizmo = true;
     [SerializeField] private Color punchGizmoColor = new Color(1f, 0.4f, 0.2f, 0.35f);
 
-    public PunchAction GetSlot1Punch()
-    {
-        return slot1 as PunchAction;
-    }
-
     private Unit unit;
     private UnitAction selectedAction;
     private bool actionUsed;
     private bool isCharging;
     private float chargeTime;
     private float currentChargeForce;
+    private bool turnEventsBound;
 
     private void Awake()
     {
         unit = GetComponent<Unit>();
+        EnsureTurnManager();
     }
 
     private void OnEnable()
     {
+        EnsureTurnManager();
         Bind(action1, OnAction1);
         Bind(action2, OnAction2);
         Bind(action3, OnAction3);
         BindConfirm();
 
-        if (turnManager != null)
-        {
-            turnManager.TurnStarted += OnTurnStarted;
-            turnManager.TurnEnded += OnTurnEnded;
-            turnManager.PhaseChanged += OnPhaseChanged;
-        }
+        BindTurnEvents();
     }
 
     private void OnDisable()
@@ -59,12 +52,7 @@ public class UnitActionController : MonoBehaviour
         Unbind(action3, OnAction3);
         UnbindConfirm();
 
-        if (turnManager != null)
-        {
-            turnManager.TurnStarted -= OnTurnStarted;
-            turnManager.TurnEnded -= OnTurnEnded;
-            turnManager.PhaseChanged -= OnPhaseChanged;
-        }
+        UnbindTurnEvents();
     }
 
     private void OnAction1(InputAction.CallbackContext context)
@@ -319,5 +307,54 @@ public class UnitActionController : MonoBehaviour
         {
             actionUsed = true;
         }
+    }
+
+    public void SetTurnManager(TurnManager manager)
+    {
+        if (turnManager == manager)
+        {
+            return;
+        }
+
+        UnbindTurnEvents();
+        turnManager = manager;
+        BindTurnEvents();
+    }
+
+    private void EnsureTurnManager()
+    {
+        if (turnManager != null)
+        {
+            return;
+        }
+
+        turnManager = FindFirstObjectByType<TurnManager>();
+    }
+
+    private void BindTurnEvents()
+    {
+        if (turnEventsBound || turnManager == null)
+        {
+            return;
+        }
+
+        turnManager.TurnStarted += OnTurnStarted;
+        turnManager.TurnEnded += OnTurnEnded;
+        turnManager.PhaseChanged += OnPhaseChanged;
+        turnEventsBound = true;
+    }
+
+    private void UnbindTurnEvents()
+    {
+        if (!turnEventsBound || turnManager == null)
+        {
+            turnEventsBound = false;
+            return;
+        }
+
+        turnManager.TurnStarted -= OnTurnStarted;
+        turnManager.TurnEnded -= OnTurnEnded;
+        turnManager.PhaseChanged -= OnPhaseChanged;
+        turnEventsBound = false;
     }
 }

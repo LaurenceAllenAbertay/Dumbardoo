@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Gun
   m_EditorClassIdentifier: 
   actionName: Gun
-  maxRange: 30
+  maxRange: 40
   damage: 8
   hitMask:
     serializedVersion: 2

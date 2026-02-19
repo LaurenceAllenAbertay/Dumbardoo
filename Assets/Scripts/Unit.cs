@@ -58,6 +58,19 @@ public class Unit : MonoBehaviour
         }
     }
 
+    public void SetTeamId(int id)
+    {
+        teamId = id;
+    }
+
+    public void SetUnitName(string newName)
+    {
+        if (!string.IsNullOrWhiteSpace(newName))
+        {
+            name = newName;
+        }
+    }
+
     public void ApplyDamage(int amount)
     {
         ApplyDamage(amount, null, null);

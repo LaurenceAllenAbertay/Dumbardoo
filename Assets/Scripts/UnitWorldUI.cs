@@ -95,4 +95,17 @@ public class UnitWorldUI : MonoBehaviour
         lastMaxHealth = -1;
         UpdateHealth();
     }
+
+    public void RefreshName()
+    {
+        if (unit == null)
+        {
+            unit = GetComponentInParent<Unit>();
+        }
+
+        if (unit != null && nameText != null)
+        {
+            nameText.text = unit.name;
+        }
+    }
 }

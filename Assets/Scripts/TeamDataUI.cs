@@ -54,6 +54,18 @@ public class TeamDataUI : MonoBehaviour
         UpdateTeamHealth();
     }
 
+    public void Configure(int id, string name)
+    {
+        teamId = id;
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            teamName = name;
+        }
+
+        RefreshUnits();
+        RefreshAll();
+    }
+
     private void RefreshUnits()
     {
         teamUnits.Clear();
