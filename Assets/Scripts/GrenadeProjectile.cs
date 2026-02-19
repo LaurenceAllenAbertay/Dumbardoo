@@ -15,6 +15,8 @@ public class GrenadeProjectile : MonoBehaviour
     private string actionName;
     private float spawnTime;
     private bool exploded;
+    private ThirdPersonCameraController cameraController;
+    private int cameraFollowId = -1;
 
     public void Initialize(Unit source, string actionLabel, float fuse, float radius, int dmg, float force, float upForce, LayerMask mask)
     {
@@ -26,6 +28,12 @@ public class GrenadeProjectile : MonoBehaviour
         explosionForce = force;
         explosionUpForce = upForce;
         hitMask = mask;
+    }
+
+    public void SetCameraFollow(ThirdPersonCameraController controller, int followId)
+    {
+        cameraController = controller;
+        cameraFollowId = followId;
     }
 
     private void OnEnable()
@@ -54,6 +62,11 @@ public class GrenadeProjectile : MonoBehaviour
         }
 
         exploded = true;
+
+        if (cameraController != null && cameraFollowId >= 0)
+        {
+            cameraController.EndTemporaryFollow(cameraFollowId, 1f);
+        }
 
         Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius, hitMask, QueryTriggerInteraction.Ignore);
         bool hitAny = false;

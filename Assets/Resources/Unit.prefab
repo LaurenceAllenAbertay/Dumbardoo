@@ -357,6 +357,9 @@ MonoBehaviour:
   healthSlider: {fileID: 5398517947109174099}
   nameText: {fileID: 6583338993738247171}
   cameraTransform: {fileID: 0}
+  targetCanvas: {fileID: 0}
+  hideWhenCameraClose: 1
+  hideDistance: 3
 --- !u!1 &2094059842533251694
 GameObject:
   m_ObjectHideFlags: 0

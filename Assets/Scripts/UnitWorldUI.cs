@@ -9,6 +9,9 @@ public class UnitWorldUI : MonoBehaviour
     [SerializeField] private Slider healthSlider;
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private Transform cameraTransform;
+    [SerializeField] private Canvas targetCanvas;
+    [SerializeField] private bool hideWhenCameraClose = true;
+    [SerializeField] private float hideDistance = 1.5f;
 
     private int lastHealth = -1;
     private int lastMaxHealth = -1;
@@ -35,6 +38,11 @@ public class UnitWorldUI : MonoBehaviour
             cameraTransform = Camera.main.transform;
         }
 
+        if (targetCanvas == null)
+        {
+            targetCanvas = GetComponentInChildren<Canvas>(true);
+        }
+
         RefreshAll();
     }
 
@@ -47,6 +55,7 @@ public class UnitWorldUI : MonoBehaviour
     {
         UpdateBillboard();
         UpdateHealth();
+        UpdateVisibility();
     }
 
     private void UpdateBillboard()
@@ -94,6 +103,28 @@ public class UnitWorldUI : MonoBehaviour
         lastHealth = -1;
         lastMaxHealth = -1;
         UpdateHealth();
+    }
+
+    private void UpdateVisibility()
+    {
+        if (!hideWhenCameraClose || targetCanvas == null)
+        {
+            return;
+        }
+
+        Transform cam = cameraTransform != null ? cameraTransform : Camera.main?.transform;
+        if (cam == null)
+        {
+            return;
+        }
+
+        Transform anchor = unit != null ? unit.transform : transform;
+        float sqrDistance = (cam.position - anchor.position).sqrMagnitude;
+        bool shouldShow = sqrDistance > hideDistance * hideDistance;
+        if (targetCanvas.enabled != shouldShow)
+        {
+            targetCanvas.enabled = shouldShow;
+        }
     }
 
     public void RefreshName()

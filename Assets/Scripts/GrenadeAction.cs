@@ -49,6 +49,13 @@ public class GrenadeAction : UnitAction
         grenade.Initialize(unit, ActionName, fuseSeconds, explosionRadius, damage, explosionForce, explosionUpForce, hitMask);
         IgnoreThrowerCollision(grenade, unit);
 
+        ThirdPersonCameraController cameraController = cam.GetComponent<ThirdPersonCameraController>();
+        if (cameraController != null)
+        {
+            int followId = cameraController.BeginTemporaryFollow(grenade.transform, unit.transform);
+            grenade.SetCameraFollow(cameraController, followId);
+        }
+
         Rigidbody body = grenade.GetComponent<Rigidbody>();
         if (body != null)
         {

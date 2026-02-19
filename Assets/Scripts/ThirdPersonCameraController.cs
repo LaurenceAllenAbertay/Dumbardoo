@@ -20,6 +20,9 @@ public class ThirdPersonCameraController : MonoBehaviour
     [SerializeField] private bool lockCursor = true;
 
     private Transform target;
+    private Transform overrideReturnTarget;
+    private int overrideId;
+    private Coroutine overrideRoutine;
     private float yaw;
     private float pitch;
     private Vector2 lookInput;
@@ -67,7 +70,7 @@ public class ThirdPersonCameraController : MonoBehaviour
     {
         if (turnManager != null && turnManager.CurrentUnit != null)
         {
-            SetTarget(turnManager.CurrentUnit.transform);
+            SetTarget(turnManager.CurrentUnit.transform, true);
         }
 
         if (lockCursor)
@@ -117,17 +120,71 @@ public class ThirdPersonCameraController : MonoBehaviour
     {
         if (unit != null)
         {
-            SetTarget(unit.transform);
+            SetTarget(unit.transform, true);
         }
     }
 
-    private void SetTarget(Transform newTarget)
+    public int BeginTemporaryFollow(Transform newTarget, Transform returnTarget)
+    {
+        if (newTarget == null)
+        {
+            return -1;
+        }
+
+        overrideId++;
+        overrideReturnTarget = returnTarget;
+        SetTarget(newTarget, false);
+        return overrideId;
+    }
+
+    public void EndTemporaryFollow(int id, float returnDelaySeconds)
+    {
+        if (id != overrideId)
+        {
+            return;
+        }
+
+        if (overrideRoutine != null)
+        {
+            StopCoroutine(overrideRoutine);
+        }
+
+        overrideRoutine = StartCoroutine(ReturnToOverrideTarget(id, returnDelaySeconds));
+    }
+
+    private System.Collections.IEnumerator ReturnToOverrideTarget(int id, float delay)
+    {
+        if (delay > 0f)
+        {
+            yield return new WaitForSeconds(delay);
+        }
+
+        if (id != overrideId)
+        {
+            yield break;
+        }
+
+        Transform returnTarget = overrideReturnTarget;
+        overrideReturnTarget = null;
+
+        if (returnTarget != null)
+        {
+            SetTarget(returnTarget, true);
+        }
+
+        overrideRoutine = null;
+    }
+
+    private void SetTarget(Transform newTarget, bool resetYawPitch)
     {
         target = newTarget;
 
-        Vector3 forward = target.forward;
-        yaw = Mathf.Atan2(forward.x, forward.z) * Mathf.Rad2Deg;
-        pitch = 10f;
+        if (resetYawPitch && target != null)
+        {
+            Vector3 forward = target.forward;
+            yaw = Mathf.Atan2(forward.x, forward.z) * Mathf.Rad2Deg;
+            pitch = 10f;
+        }
 
         turnTransitionElapsed = 0f;
         turnTransitionStartPos = transform.position;
