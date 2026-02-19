@@ -29,8 +29,17 @@ public class TurnManager : MonoBehaviour
     [SerializeField] private ThirdPersonCameraController cameraController;
     [SerializeField] private bool blockEndTurnUntilCameraReturns = true;
 
-    private readonly List<Unit> turnOrder = new List<Unit>();
-    private int currentIndex = -1;
+    // Flat list of all units, used for winner checking.
+    private readonly List<Unit> allUnits = new List<Unit>();
+
+    // Per-team queues: each team has its own independently cycling list.
+    private readonly List<int> teamIds = new List<int>();
+    private readonly Dictionary<int, List<Unit>> teamQueues = new Dictionary<int, List<Unit>>();
+    private readonly Dictionary<int, int> teamIndices = new Dictionary<int, int>();
+
+    // Which team is currently taking their turn (index into teamIds).
+    private int currentTeamIndex = -1;
+
     private bool started;
     private Vector3 currentTurnStartPosition;
     private bool pendingMovementStart;
@@ -83,29 +92,51 @@ public class TurnManager : MonoBehaviour
 
     public void BuildTurnOrder()
     {
-        turnOrder.Clear();
+        allUnits.Clear();
+        teamIds.Clear();
+        teamQueues.Clear();
+        teamIndices.Clear();
+
         var units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
+
+        // Group units by team.
+        var teamGroups = new Dictionary<int, List<Unit>>();
         foreach (var unit in units)
         {
-            if (unit != null)
+            if (unit == null) continue;
+            allUnits.Add(unit);
+            if (!teamGroups.ContainsKey(unit.TeamId))
             {
-                turnOrder.Add(unit);
+                teamGroups[unit.TeamId] = new List<Unit>();
             }
+            teamGroups[unit.TeamId].Add(unit);
         }
 
-        if (randomizeTurnOrder)
+        // Randomise which team goes first by shuffling the team order.
+        var sortedTeams = new List<int>(teamGroups.Keys);
+        sortedTeams.Sort(); // sort first for consistency, then shuffle
+        ShuffleTeams(sortedTeams);
+
+        foreach (int teamId in sortedTeams)
         {
-            Shuffle(turnOrder);
+            var queue = teamGroups[teamId];
+            if (randomizeTurnOrder)
+            {
+                Shuffle(queue);
+            }
+            teamIds.Add(teamId);
+            teamQueues[teamId] = queue;
+            teamIndices[teamId] = -1; // Will be incremented to 0 on first use.
         }
 
-        currentIndex = -1;
+        currentTeamIndex = -1;
         started = false;
         CurrentUnit = null;
     }
 
     public void StartTurns()
     {
-        if (turnOrder.Count == 0)
+        if (teamIds.Count == 0)
         {
             Debug.LogWarning("TurnManager: No units found in scene.");
             return;
@@ -117,16 +148,8 @@ public class TurnManager : MonoBehaviour
 
     public void EndCurrentTurn()
     {
-        if (!started)
-        {
-            return;
-        }
+        if (!started) return;
 
-        // Only block for the camera when the unit is still alive.
-        // A dead unit (e.g. killed mid-jetpack by a KillBox) must always be
-        // able to advance the turn; otherwise the game can freeze permanently
-        // if the camera happens to be in a temporary-follow state when
-        // DeathSequence calls here.
         bool currentUnitAlive = CurrentUnit != null && CurrentUnit.IsAlive;
         if (currentUnitAlive
             && blockEndTurnUntilCameraReturns
@@ -144,7 +167,6 @@ public class TurnManager : MonoBehaviour
                 {
                     CurrentUnit.EndTurn();
                 }
-
                 TurnEnded?.Invoke(CurrentUnit);
             }
 
@@ -169,20 +191,13 @@ public class TurnManager : MonoBehaviour
 
     public void EndMovementPhase()
     {
-        if (Phase != TurnPhase.Movement)
-        {
-            return;
-        }
-
+        if (Phase != TurnPhase.Movement) return;
         SetPhase(TurnPhase.Action);
     }
 
     public void NotifyActionEnded(Unit unit)
     {
-        if (!started || unit == null || unit != CurrentUnit)
-        {
-            return;
-        }
+        if (!started || unit == null || unit != CurrentUnit) return;
 
         if (Phase == TurnPhase.Action)
         {
@@ -192,10 +207,7 @@ public class TurnManager : MonoBehaviour
 
     public void NotifyTurnTransitionComplete()
     {
-        if (!pendingMovementStart)
-        {
-            return;
-        }
+        if (!pendingMovementStart) return;
 
         pendingMovementStart = false;
 
@@ -210,30 +222,42 @@ public class TurnManager : MonoBehaviour
         if (CheckForWinner(out var winningTeamId))
         {
             TeamWon?.Invoke(winningTeamId);
-            Debug.Log($"Team {winningTeamId+1} wins.");
+            Debug.Log($"Team {winningTeamId + 1} wins.");
             return;
         }
 
-        for (int i = 0; i < turnOrder.Count; i++)
+        // Try every team once before giving up (in case some are fully dead).
+        for (int attempt = 0; attempt < teamIds.Count; attempt++)
         {
-            currentIndex = (currentIndex + 1) % turnOrder.Count;
-            var candidate = turnOrder[currentIndex];
-            if (candidate != null && candidate.IsAlive)
+            // Alternate to the next team in the fixed order for this match.
+            currentTeamIndex = (currentTeamIndex + 1) % teamIds.Count;
+            int teamId = teamIds[currentTeamIndex];
+            var queue = teamQueues[teamId];
+
+            // Try every unit in this team's queue before moving on.
+            for (int i = 0; i < queue.Count; i++)
             {
-                CurrentUnit = candidate;
-                CurrentUnit.BeginTurn();
-                currentTurnStartPosition = CurrentUnit.transform.position;
-                pendingMovementStart = true;
-                SetPhase(showNextUnitPhase ? TurnPhase.NextUnit : TurnPhase.Starting);
-                TurnStarted?.Invoke(CurrentUnit);
-
-                if (!waitForCameraTransition)
+                teamIndices[teamId] = (teamIndices[teamId] + 1) % queue.Count;
+                var candidate = queue[teamIndices[teamId]];
+                if (candidate != null && candidate.IsAlive)
                 {
-                    NotifyTurnTransitionComplete();
-                }
+                    CurrentUnit = candidate;
+                    CurrentUnit.BeginTurn();
+                    currentTurnStartPosition = CurrentUnit.transform.position;
+                    pendingMovementStart = true;
+                    SetPhase(showNextUnitPhase ? TurnPhase.NextUnit : TurnPhase.Starting);
+                    TurnStarted?.Invoke(CurrentUnit);
 
-                return;
+                    if (!waitForCameraTransition)
+                    {
+                        NotifyTurnTransitionComplete();
+                    }
+
+                    return;
+                }
             }
+
+            // This whole team is dead — skip it.
         }
 
         Debug.LogWarning("TurnManager: No alive units found.");
@@ -243,7 +267,7 @@ public class TurnManager : MonoBehaviour
     {
         winningTeamId = -1;
         var aliveTeams = new HashSet<int>();
-        foreach (var unit in turnOrder)
+        foreach (var unit in allUnits)
         {
             if (unit != null && unit.IsAlive)
             {
@@ -273,6 +297,15 @@ public class TurnManager : MonoBehaviour
         EndCurrentTurn();
     }
 
+    private static void ShuffleTeams(List<int> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = UnityEngine.Random.Range(0, i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+    }
+
     private static void Shuffle(List<Unit> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
@@ -284,11 +317,7 @@ public class TurnManager : MonoBehaviour
 
     private void UpdatePhaseTextForCurrentPhase()
     {
-        if (phaseText == null)
-        {
-            return;
-        }
-
+        if (phaseText == null) return;
         phaseText.text = GetPhaseText(Phase);
     }
 
@@ -296,16 +325,11 @@ public class TurnManager : MonoBehaviour
     {
         switch (phase)
         {
-            case TurnPhase.Movement:
-                return movementPhaseText;
-            case TurnPhase.Action:
-                return actionPhaseText;
-            case TurnPhase.TurnEnd:
-                return turnEndText;
-            case TurnPhase.NextUnit:
-                return nextUnitText;
-            default:
-                return string.Empty;
+            case TurnPhase.Movement: return movementPhaseText;
+            case TurnPhase.Action:   return actionPhaseText;
+            case TurnPhase.TurnEnd:  return turnEndText;
+            case TurnPhase.NextUnit: return nextUnitText;
+            default:                 return string.Empty;
         }
     }
 
@@ -326,7 +350,6 @@ public class TurnManager : MonoBehaviour
                 return text;
             }
         }
-
         return null;
     }
 }
