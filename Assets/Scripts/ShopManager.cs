@@ -10,6 +10,9 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private ThirdPersonCameraController cameraController;
     [SerializeField] private UnityEvent allTeamsReady;
 
+    [Tooltip("GameObjects to hide while the shop is open (e.g. team HUD panels, phase text).")]
+    [SerializeField] private GameObject[] hudElementsToHide;
+
     private int nextTeamIndex;
     private bool shopActive;
 
@@ -22,6 +25,11 @@ public class ShopManager : MonoBehaviour
         {
             turnManager.TeamWon += OnTeamWon;
         }
+
+        if (shopPanel != null)
+        {
+            shopPanel.DoneClicked += OpenNextTeam;
+        }
     }
 
     private void OnDisable()
@@ -29,6 +37,11 @@ public class ShopManager : MonoBehaviour
         if (turnManager != null)
         {
             turnManager.TeamWon -= OnTeamWon;
+        }
+
+        if (shopPanel != null)
+        {
+            shopPanel.DoneClicked -= OpenNextTeam;
         }
     }
 
@@ -85,15 +98,12 @@ public class ShopManager : MonoBehaviour
     {
         if (cameraController != null)
         {
-            // Reposition before disabling so LateUpdate does not fire one more
-            // frame with a stale transform.
             Camera cam = Camera.main;
             if (cam != null)
             {
                 Vector3 introPos = cameraController.IntroOffset;
                 cam.transform.position = introPos;
 
-                // Look toward the scene origin.
                 if (introPos.sqrMagnitude > 0.001f)
                 {
                     Vector3 lookDir = (Vector3.zero - introPos).normalized;
@@ -104,14 +114,12 @@ public class ShopManager : MonoBehaviour
             cameraController.enabled = false;
         }
 
+        SetHudVisible(false);
+
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }
 
-    /// <summary>
-    /// Re-enables the camera controller and locks the cursor, ready for the
-    /// next round of gameplay.
-    /// </summary>
     private void ExitShopMode()
     {
         if (cameraController != null)
@@ -119,8 +127,26 @@ public class ShopManager : MonoBehaviour
             cameraController.enabled = true;
         }
 
+        SetHudVisible(true);
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+    }
+
+    private void SetHudVisible(bool visible)
+    {
+        if (hudElementsToHide == null)
+        {
+            return;
+        }
+
+        foreach (GameObject element in hudElementsToHide)
+        {
+            if (element != null)
+            {
+                element.SetActive(visible);
+            }
+        }
     }
 
     // ── Public API ────────────────────────────────────────────────────────────

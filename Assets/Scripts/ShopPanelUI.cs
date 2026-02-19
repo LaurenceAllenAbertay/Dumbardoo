@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class ShopPanelUI : MonoBehaviour
 {
@@ -15,6 +17,9 @@ public class ShopPanelUI : MonoBehaviour
     [SerializeField] private Transform unitListRoot;
     [SerializeField] private UnitCurrentActionsUI unitCurrentActionsPrefab;
 
+    [Tooltip("Button the player clicks when they are done shopping for their team.")]
+    [SerializeField] private Button doneButton;
+
     [Header("Copy")]
     [SerializeField] private string shopTitleSuffix = " Shop";
     [SerializeField] private string defaultInfoText = "Select an action to purchase.";
@@ -22,6 +27,9 @@ public class ShopPanelUI : MonoBehaviour
     [SerializeField] private string notEnoughGoldText = "Not enough gold.";
     [SerializeField] private string purchaseCompleteText = "Action replaced.";
     [SerializeField] private string noActionsAvailableText = "No actions available.";
+
+    /// <summary>Raised when the player clicks the Done button to finish shopping.</summary>
+    public event Action DoneClicked;
 
     private readonly List<UnitCurrentActionsUI> unitEntries = new List<UnitCurrentActionsUI>();
     private readonly List<ShopOffer> offers = new List<ShopOffer>();
@@ -73,6 +81,12 @@ public class ShopPanelUI : MonoBehaviour
         BuildOffers();
         BuildUnitList();
         SetInfoText(defaultInfoText);
+
+        if (doneButton != null)
+        {
+            doneButton.onClick.RemoveAllListeners();
+            doneButton.onClick.AddListener(() => DoneClicked?.Invoke());
+        }
     }
 
     public void Close()
@@ -80,6 +94,11 @@ public class ShopPanelUI : MonoBehaviour
         gameObject.SetActive(false);
         pendingAction = null;
         pendingPrice = 0;
+
+        if (doneButton != null)
+        {
+            doneButton.onClick.RemoveAllListeners();
+        }
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────
@@ -314,14 +333,14 @@ public class ShopPanelUI : MonoBehaviour
             max = min;
         }
 
-        return Random.Range(min, max + 1);
+        return UnityEngine.Random.Range(min, max + 1);
     }
 
     private static void Shuffle<T>(IList<T> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
         {
-            int j = Random.Range(0, i + 1);
+            int j = UnityEngine.Random.Range(0, i + 1);
             (list[i], list[j]) = (list[j], list[i]);
         }
     }

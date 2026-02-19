@@ -6,12 +6,11 @@ public class MatchSetupSpawner : MonoBehaviour
     [Header("Prefabs")]
     [SerializeField] private Unit unitPrefab;
 
-    [Header("Spawn Area")]
-    [SerializeField] private BoxCollider spawnVolume;
-    [SerializeField] private LayerMask groundMask = ~0;
-    [SerializeField] private float groundRaycastHeight = 8f;
-    [SerializeField] private float groundOffset = 0.05f;
-    [SerializeField] private int maxSpawnAttempts = 20;
+    [Header("Spawn Points")]
+    [Tooltip("Assign one Transform per desired spawn location. " +
+             "Units are distributed so at most one occupies each point; " +
+             "if there are more units than points a second shuffle pass fills the overflow.")]
+    [SerializeField] private Transform[] spawnPoints = new Transform[0];
 
     [Header("Team Materials")]
     [SerializeField] private Material team1Material;
@@ -32,9 +31,15 @@ public class MatchSetupSpawner : MonoBehaviour
 
     private void Awake()
     {
-        if (unitPrefab == null || spawnVolume == null)
+        if (unitPrefab == null)
         {
-            Debug.LogWarning("MatchSetupSpawner: Missing unitPrefab or spawnVolume.");
+            Debug.LogWarning("MatchSetupSpawner: Missing unitPrefab.");
+            return;
+        }
+
+        if (spawnPoints == null || spawnPoints.Length == 0)
+        {
+            Debug.LogWarning("MatchSetupSpawner: No spawn points assigned.");
             return;
         }
 
@@ -90,11 +95,16 @@ public class MatchSetupSpawner : MonoBehaviour
         SyncAliveUnitsToRoster();
 
         // Destroy every team root and all the unit children under it.
+        // DestroyImmediate is used here (instead of Destroy) so the old Unit
+        // GameObjects are fully removed before SpawnTeams and ApplyTeamUI run.
+        // Using Destroy (deferred) would leave the old units alive when
+        // RefreshUnits calls FindObjectsByType<Unit>, causing initialTotalMaxHealth
+        // to count both old and new units and making the health slider start at ~50%.
         foreach (GameObject root in teamRoots)
         {
             if (root != null)
             {
-                Destroy(root);
+                DestroyImmediate(root);
             }
         }
 
@@ -146,7 +156,17 @@ public class MatchSetupSpawner : MonoBehaviour
     /// </summary>
     private void SpawnTeams()
     {
-        Bounds bounds = spawnVolume.bounds;
+        // Count how many units we need to place across all teams.
+        int totalUnits = 0;
+        foreach (MatchSetupData.TeamSetup t in MatchSetupData.Teams)
+        {
+            totalUnits += t.UnitSlots.Count > 0 ? t.UnitSlots.Count : t.UnitCount;
+        }
+
+        // Build an ordered list of spawn-point positions: one unique point per unit
+        // where possible, then a second shuffled pass for any overflow.
+        List<Vector3> assignedPositions = BuildSpawnAssignment(totalUnits);
+        int positionCursor = 0;
 
         for (int teamIndex = 0; teamIndex < MatchSetupData.Teams.Count; teamIndex++)
         {
@@ -174,7 +194,8 @@ public class MatchSetupSpawner : MonoBehaviour
             {
                 MatchSetupData.UnitSlotData slotData = team.UnitSlots[unitIndex];
 
-                Vector3 spawnPoint = FindSpawnPoint(bounds);
+                Vector3 spawnPoint = assignedPositions[positionCursor % assignedPositions.Count];
+                positionCursor++;
                 Unit unitInstance = Instantiate(unitPrefab, spawnPoint, Quaternion.identity);
                 unitInstance.transform.SetParent(teamRoot.transform, true);
                 unitInstance.SetTeamId(teamIndex);
@@ -315,22 +336,63 @@ public class MatchSetupSpawner : MonoBehaviour
         }
     }
 
-    private Vector3 FindSpawnPoint(Bounds bounds)
+    /// <summary>
+    /// Builds a randomised list of world positions — one per unit — drawn from
+    /// <see cref="spawnPoints"/>. Each point is used at most once in the first
+    /// pass (shuffled). If <paramref name="unitCount"/> exceeds the number of
+    /// available points a second shuffled pass fills the overflow, so every
+    /// point is used at most twice before any point is used a third time.
+    /// </summary>
+    private List<Vector3> BuildSpawnAssignment(int unitCount)
     {
-        for (int attempt = 0; attempt < maxSpawnAttempts; attempt++)
+        // Collect valid (non-null) spawn point positions.
+        List<Vector3> pool = new List<Vector3>(spawnPoints.Length);
+        foreach (Transform t in spawnPoints)
         {
-            float x = Random.Range(bounds.min.x, bounds.max.x);
-            float z = Random.Range(bounds.min.z, bounds.max.z);
-            Vector3 rayStart = new Vector3(x, bounds.max.y + groundRaycastHeight, z);
-            float rayDistance = bounds.size.y + groundRaycastHeight + 5f;
-
-            if (Physics.Raycast(rayStart, Vector3.down, out RaycastHit hit, rayDistance, groundMask, QueryTriggerInteraction.Ignore))
+            if (t != null)
             {
-                return hit.point + Vector3.up * groundOffset;
+                pool.Add(t.position);
             }
         }
 
-        return bounds.center;
+        if (pool.Count == 0)
+        {
+            // Fallback: place everything at the origin.
+            Debug.LogWarning("MatchSetupSpawner: All spawn point references are null; falling back to world origin.");
+            List<Vector3> fallback = new List<Vector3>(unitCount);
+            for (int i = 0; i < unitCount; i++) fallback.Add(Vector3.zero);
+            return fallback;
+        }
+
+        // First pass — one unique point per unit (or all points if unitCount >= pool).
+        ShufflePositions(pool);
+        List<Vector3> result = new List<Vector3>(unitCount);
+        for (int i = 0; i < Mathf.Min(unitCount, pool.Count); i++)
+        {
+            result.Add(pool[i]);
+        }
+
+        // Second (and further) passes for overflow — re-shuffle each time.
+        while (result.Count < unitCount)
+        {
+            ShufflePositions(pool);
+            int remaining = unitCount - result.Count;
+            for (int i = 0; i < Mathf.Min(remaining, pool.Count); i++)
+            {
+                result.Add(pool[i]);
+            }
+        }
+
+        return result;
+    }
+
+    private static void ShufflePositions(List<Vector3> list)
+    {
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = Random.Range(0, i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
     }
 
     private string GetUnitName(MatchSetupData.TeamSetup team, int index)
