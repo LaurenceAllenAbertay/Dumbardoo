@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 2269527813549029088}
   - component: {fileID: 1039912725360863237}
   - component: {fileID: 4721679482062072956}
-  - component: {fileID: 7919385132788383566}
   - component: {fileID: 390926641520753128}
+  - component: {fileID: 4123156393986881835}
   m_Layer: 0
   m_Name: Grenade
   m_TagString: Untagged
@@ -49,11 +49,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fuseSeconds: 3
-  explosionRadius: 3
+  explosionRadius: 4
   damage: 20
   minDamagePercent: 0.1
-  explosionForce: 12
-  explosionUpForce: 3
+  explosionForce: 18
+  explosionUpForce: 2
   hitMask:
     serializedVersion: 2
     m_Bits: 64
@@ -110,29 +110,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &7919385132788383566
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4312725666980796517}
-  m_Material: {fileID: 13400000, guid: f8943f9656b341a449f28e93802a68ad, type: 2}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 1
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &390926641520753128
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -160,3 +137,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!135 &4123156393986881835
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4312725666980796517}
+  m_Material: {fileID: 13400000, guid: f8943f9656b341a449f28e93802a68ad, type: 2}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.4
+  m_Center: {x: 0, y: 0, z: 0}

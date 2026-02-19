@@ -30,12 +30,12 @@ Always prefer Unity 6-idiomatic patterns and APIs. Do not suggest deprecated Uni
 
 - **Classes / Structs / Enums:** `PascalCase` — e.g., `PlayerController`, `EnemyState`
 - **Methods:** `PascalCase` — e.g., `TakeDamage()`, `OnPlayerDeath()`
-- **Private fields:** `_camelCase` with underscore prefix — e.g., `_health`, `_rigidbody`
+- **Private fields:** `camelCase` — e.g., `health`, `rigidbody`
 - **Public properties:** `PascalCase` — e.g., `Health`, `IsGrounded`
 - **Constants:** `ALL_CAPS_SNAKE_CASE` — e.g., `MAX_HEALTH`
 - **Interfaces:** Prefix with `I` — e.g., `IDamageable`, `IInteractable`
 - **ScriptableObjects:** Suffix with `SO` or `Data` — e.g., `WeaponDataSO`
-- **Scenes:** `PascalCase`, descriptive — e.g., `MainMenu`, `Level_01`
+- **Scenes:** `PascalCase`, descriptive — e.g., `MainMenu`, `MountainFields`
 - **Prefabs:** Match their primary script name — e.g., `PlayerCharacter.prefab`
 
 ---
@@ -53,7 +53,7 @@ Always prefer Unity 6-idiomatic patterns and APIs. Do not suggest deprecated Uni
 
 ### Unity 6 Specifics
 
-- Use the **Input System** package (new) — do **not** use `Input.GetKey()` / legacy input unless specified.
+- Use the **Input System** package (new) — do **not** use `Input.GetKey()` / legacy input.
 - Use **UnityEngine.Pool** (`ObjectPool<T>`) for object pooling — do not write custom pools from scratch.
 - Prefer **Addressables** for asset loading over `Resources.Load()`.
 - Use `Awaitable` (Unity 6 native async) or `UniTask` for async operations — avoid raw `Task`/`async void` on MonoBehaviours.
@@ -73,8 +73,7 @@ Always prefer Unity 6-idiomatic patterns and APIs. Do not suggest deprecated Uni
 
 Use the following patterns consistently:
 
-- **Game Manager:** A persistent singleton (`DontDestroyOnLoad`) that owns global game state (current level, score, game phase).
-- **Service Locator or Dependency Injection:** Prefer constructor/field injection via a lightweight DI setup or a `ServiceLocator` static class over hard `FindObjectOfType` dependencies.
+- **Game Manager:** A persistent singleton (`DontDestroyOnLoad`) that owns global game state (current level, score, game phase) if needed.
 - **Event System:** Use a central `GameEventsSO` (ScriptableObject-based events) or C# `Action`/`event` delegates for decoupled communication between systems.
 - **State Machines:** Implement character/enemy logic as explicit state machines (enum-driven or class-driven). Do not embed complex branching logic directly in `Update()`.
 - **ScriptableObject-Driven Data:** All tunable game data (stats, item configs, level configs) should live in ScriptableObjects, not hardcoded in MonoBehaviours.
@@ -93,7 +92,7 @@ Use the following patterns consistently:
 
 ## Testing & Debugging
 
-- Write **Unity Test Framework** (EditMode/PlayMode) tests for core logic where feasible — place them in `Assets/_Project/Tests/`.
+- Write **Unity Test Framework** (EditMode/PlayMode) tests for core logic where feasible — place them in `Assets/StickWarfare3D/Tests/`.
 - Use `Debug.Log()` sparingly in production code; wrap logs in a custom `GameLogger` utility that can be toggled off in builds.
 - Use `[ContextMenu("Test Action")]` on MonoBehaviours for quick in-editor manual testing of methods.
 - Gizmos (`OnDrawGizmos`) should be used to visualize spatial logic (attack ranges, patrol paths, etc.).
@@ -102,18 +101,16 @@ Use the following patterns consistently:
 
 ## What to Do When Asked a Task
 
-1. **Understand scope first** — clarify whether this is a new file, a modification, or a refactor.
-2. **Check existing patterns** — match the style and architecture already present in the project.
-3. **Write complete, compilable code** — do not leave placeholder `// TODO` stubs unless asked to scaffold.
-4. **Add XML doc comments** on all public methods and classes.
-5. **Flag concerns** — if a requested approach conflicts with performance, Unity best practices, or these guidelines, note it before proceeding.
-6. **One responsibility per class** — if a script is growing beyond a single clear purpose, suggest a split.
+- **Check existing patterns** — match the style and architecture already present in the project.
+- **Write complete, compilable code** — do not leave placeholder `// TODO` stubs unless asked to scaffold.
+- **Flag concerns** — if a requested approach conflicts with performance, Unity best practices, or these guidelines, note it before proceeding.
+- **One responsibility per class** — if a script is growing beyond a single clear purpose, suggest a split.
 
 ---
 
 ## What to Avoid
 
-- Do **not** modify files outside `Assets/_Project/` unless explicitly instructed.
+- Do **not** modify files outside `Assets/` unless explicitly instructed.
 - Do **not** change `.meta` files manually.
 - Do **not** add packages to `Packages/manifest.json` without confirming with the user.
 - Do **not** use `Thread` or raw `Task.Run` for anything touching Unity objects — Unity APIs are not thread-safe.

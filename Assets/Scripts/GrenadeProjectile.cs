@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Handles grenade fuse timing and explosion behavior.
+/// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class GrenadeProjectile : MonoBehaviour
 {
@@ -18,6 +21,9 @@ public class GrenadeProjectile : MonoBehaviour
     private ThirdPersonCameraController cameraController;
     private int cameraFollowId = -1;
 
+    /// <summary>
+    /// Initializes the grenade settings for this instance.
+    /// </summary>
     public void Initialize(Unit source, string actionLabel, float fuse, float radius, int dmg, float force, float upForce, LayerMask mask)
     {
         sourceUnit = source;
@@ -30,6 +36,9 @@ public class GrenadeProjectile : MonoBehaviour
         hitMask = mask;
     }
 
+    /// <summary>
+    /// Registers a temporary camera follow so it can be released on explosion.
+    /// </summary>
     public void SetCameraFollow(ThirdPersonCameraController controller, int followId)
     {
         cameraController = controller;

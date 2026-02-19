@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Throws a grenade projectile that explodes after a fuse.
+/// </summary>
 [CreateAssetMenu(menuName = "StickWarfare/Actions/Grenade")]
 public class GrenadeAction : UnitAction
 {
@@ -19,10 +22,24 @@ public class GrenadeAction : UnitAction
 
     private float currentThrowForce = -1f;
 
+    /// <summary>
+    /// Gets the minimum throw force for charging.
+    /// </summary>
     public float MinThrowForce => minThrowForce;
+
+    /// <summary>
+    /// Gets the maximum throw force for charging.
+    /// </summary>
     public float MaxThrowForce => maxThrowForce;
+
+    /// <summary>
+    /// Gets the charge speed used to ramp throw force.
+    /// </summary>
     public float ChargeSpeed => chargeSpeed;
 
+    /// <summary>
+    /// Sets the current throw force used on the next grenade.
+    /// </summary>
     public void SetThrowForce(float force)
     {
         currentThrowForce = force;
@@ -49,14 +66,14 @@ public class GrenadeAction : UnitAction
         grenade.Initialize(unit, ActionName, fuseSeconds, explosionRadius, damage, explosionForce, explosionUpForce, hitMask);
         IgnoreThrowerCollision(grenade, unit);
 
+        Rigidbody body = grenade.GetComponent<Rigidbody>();
         ThirdPersonCameraController cameraController = cam.GetComponent<ThirdPersonCameraController>();
         if (cameraController != null)
         {
-            int followId = cameraController.BeginTemporaryFollow(grenade.transform, unit.transform);
+            int followId = cameraController.BeginGrenadeFollow(grenade.transform, unit.transform, body, cam.transform.forward);
             grenade.SetCameraFollow(cameraController, followId);
         }
 
-        Rigidbody body = grenade.GetComponent<Rigidbody>();
         if (body != null)
         {
             Vector3 throwDir = cam.transform.forward.normalized;

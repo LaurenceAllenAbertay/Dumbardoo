@@ -538,13 +538,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.08715578, y: 0, z: 0, w: 0.9961947}
-  m_LocalPosition: {x: 0, y: 4, z: -6}
+  m_LocalRotation: {x: 0.3855034, y: 0, z: 0, w: 0.9227064}
+  m_LocalPosition: {x: 0, y: 40, z: -50}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 10, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 45.35, y: 0, z: 0}
 --- !u!114 &330585547
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -607,7 +607,11 @@ MonoBehaviour:
   followDistance: 6
   followSmoothTime: 0.01
   turnChangeDuration: 1
-  lookSensitivity: 100
+  grenadeFollowDistance: 7
+  grenadeTargetOffset: {x: 0, y: 2.6, z: 0}
+  grenadePitch: 30
+  grenadeVelocityDeadZone: 0.25
+  lookSensitivity: 80
   minPitch: -50
   maxPitch: 70
   lockCursor: 1
