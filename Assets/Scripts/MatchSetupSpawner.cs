@@ -22,6 +22,7 @@ public class MatchSetupSpawner : MonoBehaviour
 
     [Header("Turn System")]
     [SerializeField] private TurnManager turnManager;
+    [SerializeField] private TeamCurrencyManager currencyManager;
 
     private void Awake()
     {
@@ -36,12 +37,21 @@ public class MatchSetupSpawner : MonoBehaviour
             turnManager = FindFirstObjectByType<TurnManager>();
         }
 
+        if (currencyManager == null)
+        {
+            currencyManager = FindFirstObjectByType<TeamCurrencyManager>();
+        }
+
         if (teamUIs == null || teamUIs.Length == 0)
         {
             teamUIs = FindObjectsByType<TeamDataUI>(FindObjectsSortMode.None);
         }
 
         EnsureDefaultSetup();
+        if (currencyManager != null)
+        {
+            currencyManager.InitializeFromMatchSetupData();
+        }
         SpawnTeams();
         ApplyTeamUI();
         ResetTurns();

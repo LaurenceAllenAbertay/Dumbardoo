@@ -133,7 +133,7 @@ GameObject:
   - component: {fileID: 4569556377263266595}
   - component: {fileID: 8373299491585194731}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -326,8 +326,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6855870948093573675}
+  - component: {fileID: 7360261004504915629}
   m_Layer: 5
-  m_Name: UnitActions
+  m_Name: UnitCurrentActions
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -356,6 +357,27 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 650, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7360261004504915629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4005987292407242433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6f153b0b963ae641bcd748ee5db1e01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  unitNameText: {fileID: 2327414165548431479}
+  actionButtons:
+  - {fileID: 8580930695130096318}
+  - {fileID: 8393073910912888736}
+  - {fileID: 5189709151693265129}
+  actionIconImages:
+  - {fileID: 6329228648171545879}
+  - {fileID: 8373299491585194731}
+  - {fileID: 4666000077725805907}
 --- !u!1 &4609538488397685952
 GameObject:
   m_ObjectHideFlags: 0
@@ -368,7 +390,7 @@ GameObject:
   - component: {fileID: 4408632600284865020}
   - component: {fileID: 6329228648171545879}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -700,7 +722,7 @@ GameObject:
   - component: {fileID: 1520342356611619943}
   - component: {fileID: 4666000077725805907}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Image3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

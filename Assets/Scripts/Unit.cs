@@ -22,6 +22,7 @@ public class Unit : MonoBehaviour
 
     public event Action<Unit> TurnStarted;
     public event Action<Unit> TurnEnded;
+    public static event Action<Unit, Unit, int, string> DamageApplied;
 
     private bool deathSequenceStarted;
     private float deathRandomTorqueImpulse = 1f;
@@ -101,6 +102,7 @@ public class Unit : MonoBehaviour
         string sourceName = source != null ? source.name : "Unknown";
         string actionLabel = string.IsNullOrWhiteSpace(actionName) ? "UnknownAction" : actionName;
         Debug.Log($"{sourceName} used {actionLabel} on {name} for {amount} damage.");
+        DamageApplied?.Invoke(source, this, amount, actionName);
 
         if (currentHealth == 0)
         {

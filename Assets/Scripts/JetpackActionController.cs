@@ -86,6 +86,12 @@ public class JetpackActionController : MonoBehaviour
             return;
         }
 
+        if (!unit.IsAlive)
+        {
+            StopAction(false);
+            return;
+        }
+
         if (!IsMyActionPhase())
         {
             StopAction(false);
@@ -112,33 +118,50 @@ public class JetpackActionController : MonoBehaviour
         }
 
         Vector3 velocity = body.linearVelocity;
-        Vector3 moveDirection = GetAirMoveDirection();
-        if (moveDirection.sqrMagnitude > 0f)
+        Vector3 moveDirection = Vector3.zero;
+        bool canMoveHorizontally = tookOff && !grounded && fuelRemaining > 0f;
+        if (canMoveHorizontally)
         {
-            Vector3 horizontal = moveDirection * airMoveSpeed;
-            velocity.x = horizontal.x;
-            velocity.z = horizontal.z;
-
-            if (turnManager != null && turnManager.Phase == TurnManager.TurnPhase.Action)
+            moveDirection = GetAirMoveDirection();
+            if (moveDirection.sqrMagnitude > 0f)
             {
-                body.MoveRotation(Quaternion.LookRotation(moveDirection, Vector3.up));
+                Vector3 horizontal = moveDirection * airMoveSpeed;
+                velocity.x = horizontal.x;
+                velocity.z = horizontal.z;
+
+                if (turnManager != null && turnManager.Phase == TurnManager.TurnPhase.Action)
+                {
+                    body.MoveRotation(Quaternion.LookRotation(moveDirection, Vector3.up));
+                }
             }
         }
-        else
-        {
-            velocity.x = 0f;
-            velocity.z = 0f;
-        }
 
+        float burnRate = 0f;
         if (isThrustHeld && fuelRemaining > 0f)
         {
-            fuelRemaining = Mathf.Max(0f, fuelRemaining - fuelBurnPerSecond * Time.fixedDeltaTime);
+            burnRate += fuelBurnPerSecond;
             float targetY = Mathf.Min(maxUpSpeed, velocity.y + thrustAcceleration * Time.fixedDeltaTime);
             velocity.y = targetY;
         }
         else if (grounded && !tookOff)
         {
             velocity.y = 0f;
+        }
+
+        if (moveDirection.sqrMagnitude > 0f && fuelRemaining > 0f)
+        {
+            burnRate += fuelBurnPerSecond;
+        }
+
+        if (burnRate > 0f)
+        {
+            fuelRemaining = Mathf.Max(0f, fuelRemaining - burnRate * Time.fixedDeltaTime);
+        }
+
+        if (fuelRemaining <= 0f && grounded && tookOff)
+        {
+            StopAction(true);
+            return;
         }
 
         body.linearVelocity = velocity;

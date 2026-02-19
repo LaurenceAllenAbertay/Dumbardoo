@@ -3,8 +3,14 @@ using UnityEngine;
 public abstract class UnitAction : ScriptableObject
 {
     [SerializeField] private string actionName = "Action";
+    [SerializeField] private Sprite icon;
+    [SerializeField] private int baseCost = 150;
+    [SerializeField] private int priceVariance = 20;
 
     public string ActionName => actionName;
+    public Sprite Icon => icon;
+    public int BaseCost => baseCost;
+    public int PriceVariance => priceVariance;
     public virtual bool EndsActionImmediately => true;
 
     public bool TryExecute(Unit unit, TurnManager turnManager)

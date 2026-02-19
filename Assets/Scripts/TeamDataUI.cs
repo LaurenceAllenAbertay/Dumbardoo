@@ -50,6 +50,7 @@ public class TeamDataUI : MonoBehaviour
             return;
         }
 
+        PruneDeadUnits();
         UpdateUnitsRemaining();
         UpdateTeamHealth();
     }
@@ -155,6 +156,27 @@ public class TeamDataUI : MonoBehaviour
         lastMaxHealth = max;
         totalHealthSlider.maxValue = Mathf.Max(1, max);
         totalHealthSlider.value = Mathf.Clamp(total, 0, totalHealthSlider.maxValue);
+    }
+
+    private void PruneDeadUnits()
+    {
+        bool removed = false;
+        for (int i = teamUnits.Count - 1; i >= 0; i--)
+        {
+            Unit unit = teamUnits[i];
+            if (unit == null || !unit.IsAlive)
+            {
+                teamUnits.RemoveAt(i);
+                removed = true;
+            }
+        }
+
+        if (removed)
+        {
+            lastAliveCount = -1;
+            lastTotalHealth = -1;
+            lastMaxHealth = -1;
+        }
     }
 
     private bool EnsureReferences()

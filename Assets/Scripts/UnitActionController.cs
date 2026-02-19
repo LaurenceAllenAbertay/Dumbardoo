@@ -313,6 +313,47 @@ public class UnitActionController : MonoBehaviour
         }
     }
 
+    public UnitAction GetSlot(int index)
+    {
+        switch (index)
+        {
+            case 0:
+                return slot1;
+            case 1:
+                return slot2;
+            case 2:
+                return slot3;
+            default:
+                return null;
+        }
+    }
+
+    public void SetSlot(int index, UnitAction action)
+    {
+        switch (index)
+        {
+            case 0:
+                ReplaceSlot(ref slot1, action);
+                break;
+            case 1:
+                ReplaceSlot(ref slot2, action);
+                break;
+            case 2:
+                ReplaceSlot(ref slot3, action);
+                break;
+        }
+    }
+
+    private void ReplaceSlot(ref UnitAction slot, UnitAction action)
+    {
+        if (slot == selectedAction)
+        {
+            selectedAction = null;
+        }
+
+        slot = action;
+    }
+
     public void SetTurnManager(TurnManager manager)
     {
         if (turnManager == manager)
