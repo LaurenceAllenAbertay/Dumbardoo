@@ -52,6 +52,7 @@ MonoBehaviour:
   explosionRadius: 4
   damage: 20
   minDamagePercent: 0.1
+  minKnockbackPercent: 0.25
   explosionForce: 18
   explosionUpForce: 2
   hitMask:

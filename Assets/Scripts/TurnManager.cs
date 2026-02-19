@@ -2,27 +2,41 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class TurnManager : MonoBehaviour
 {
     public enum TurnPhase
     {
-        None,
+        Starting,
         Movement,
-        Action
+        Action,
+        TurnEnd,
+        NextUnit
     }
 
     [SerializeField] private InputActionReference endTurnAction;
     [SerializeField] private bool randomizeTurnOrder = true;
     [SerializeField] private bool autoStart = true;
+    [Header("Phase UI")]
+    [SerializeField] private TMP_Text phaseText;
+    [SerializeField] private string movementPhaseText = "Movement Phase";
+    [SerializeField] private string actionPhaseText = "Action Phase";
+    [SerializeField] private string turnEndText = "Turn End";
+    [SerializeField] private string nextUnitText = "Next Unit";
+    [SerializeField] private bool waitForCameraTransition = true;
+    [Header("Camera")]
+    [SerializeField] private ThirdPersonCameraController cameraController;
+    [SerializeField] private bool blockEndTurnUntilCameraReturns = true;
 
     private readonly List<Unit> turnOrder = new List<Unit>();
     private int currentIndex = -1;
     private bool started;
     private Vector3 currentTurnStartPosition;
+    private bool pendingMovementStart;
 
     public Unit CurrentUnit { get; private set; }
-    public TurnPhase Phase { get; private set; } = TurnPhase.None;
+    public TurnPhase Phase { get; private set; } = TurnPhase.Starting;
     public Vector3 CurrentTurnStartPosition => currentTurnStartPosition;
     public event Action<Unit> TurnStarted;
     public event Action<Unit> TurnEnded;
@@ -49,6 +63,17 @@ public class TurnManager : MonoBehaviour
 
     private void Start()
     {
+        if (cameraController == null && Camera.main != null)
+        {
+            cameraController = Camera.main.GetComponent<ThirdPersonCameraController>();
+        }
+
+        if (phaseText == null)
+        {
+            phaseText = FindPhaseTextInScene();
+        }
+
+        UpdatePhaseTextForCurrentPhase();
         BuildTurnOrder();
         if (autoStart)
         {
@@ -87,13 +112,36 @@ public class TurnManager : MonoBehaviour
         }
 
         started = true;
-        AdvanceToNextUnit();
+        AdvanceToNextUnit(false);
     }
 
     public void EndCurrentTurn()
     {
         if (!started)
         {
+            return;
+        }
+
+        if (blockEndTurnUntilCameraReturns
+            && cameraController != null
+            && cameraController.IsTemporaryFollowActive)
+        {
+            return;
+        }
+
+        if (CurrentUnit == null || !CurrentUnit.IsAlive)
+        {
+            if (CurrentUnit != null)
+            {
+                if (CurrentUnit.IsTurnActive)
+                {
+                    CurrentUnit.EndTurn();
+                }
+
+                TurnEnded?.Invoke(CurrentUnit);
+            }
+
+            AdvanceToNextUnit(true);
             return;
         }
 
@@ -109,7 +157,7 @@ public class TurnManager : MonoBehaviour
             TurnEnded?.Invoke(CurrentUnit);
         }
 
-        AdvanceToNextUnit();
+        AdvanceToNextUnit(true);
     }
 
     public void EndMovementPhase()
@@ -119,11 +167,38 @@ public class TurnManager : MonoBehaviour
             return;
         }
 
-        Phase = TurnPhase.Action;
-        PhaseChanged?.Invoke(Phase);
+        SetPhase(TurnPhase.Action);
     }
 
-    private void AdvanceToNextUnit()
+    public void NotifyActionEnded(Unit unit)
+    {
+        if (!started || unit == null || unit != CurrentUnit)
+        {
+            return;
+        }
+
+        if (Phase == TurnPhase.Action)
+        {
+            SetPhase(TurnPhase.TurnEnd);
+        }
+    }
+
+    public void NotifyTurnTransitionComplete()
+    {
+        if (!pendingMovementStart)
+        {
+            return;
+        }
+
+        pendingMovementStart = false;
+
+        if (CurrentUnit != null && (Phase == TurnPhase.NextUnit || Phase == TurnPhase.Starting))
+        {
+            SetPhase(TurnPhase.Movement);
+        }
+    }
+
+    private void AdvanceToNextUnit(bool showNextUnitPhase)
     {
         if (CheckForWinner(out var winningTeamId))
         {
@@ -141,9 +216,15 @@ public class TurnManager : MonoBehaviour
                 CurrentUnit = candidate;
                 CurrentUnit.BeginTurn();
                 currentTurnStartPosition = CurrentUnit.transform.position;
-                Phase = TurnPhase.Movement;
-                PhaseChanged?.Invoke(Phase);
+                pendingMovementStart = true;
+                SetPhase(showNextUnitPhase ? TurnPhase.NextUnit : TurnPhase.Starting);
                 TurnStarted?.Invoke(CurrentUnit);
+
+                if (!waitForCameraTransition)
+                {
+                    NotifyTurnTransitionComplete();
+                }
+
                 return;
             }
         }
@@ -192,5 +273,53 @@ public class TurnManager : MonoBehaviour
             int j = UnityEngine.Random.Range(0, i + 1);
             (list[i], list[j]) = (list[j], list[i]);
         }
+    }
+
+    private void UpdatePhaseTextForCurrentPhase()
+    {
+        if (phaseText == null)
+        {
+            return;
+        }
+
+        phaseText.text = GetPhaseText(Phase);
+    }
+
+    private string GetPhaseText(TurnPhase phase)
+    {
+        switch (phase)
+        {
+            case TurnPhase.Movement:
+                return movementPhaseText;
+            case TurnPhase.Action:
+                return actionPhaseText;
+            case TurnPhase.TurnEnd:
+                return turnEndText;
+            case TurnPhase.NextUnit:
+                return nextUnitText;
+            default:
+                return string.Empty;
+        }
+    }
+
+    private void SetPhase(TurnPhase phase)
+    {
+        Phase = phase;
+        PhaseChanged?.Invoke(Phase);
+        UpdatePhaseTextForCurrentPhase();
+    }
+
+    private static TMP_Text FindPhaseTextInScene()
+    {
+        var texts = FindObjectsByType<TMP_Text>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        foreach (var text in texts)
+        {
+            if (text != null && text.gameObject.name == "CurrentPhase")
+            {
+                return text;
+            }
+        }
+
+        return null;
     }
 }

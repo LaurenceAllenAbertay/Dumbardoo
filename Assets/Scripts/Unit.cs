@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Unit : MonoBehaviour
 {
@@ -8,6 +10,9 @@ public class Unit : MonoBehaviour
     [SerializeField] private float moveRange = 6f;
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private int currentHealth = 100;
+    [SerializeField] private GameObject deathVfxPrefab;
+    [FormerlySerializedAs("deathVfxDelay")]
+    [SerializeField] private float deathEndDelay = 3f;
 
     public int TeamId => teamId;
     public bool IsAlive => isAlive;
@@ -19,8 +24,13 @@ public class Unit : MonoBehaviour
     public event Action<Unit> TurnStarted;
     public event Action<Unit> TurnEnded;
 
+    private bool deathSequenceStarted;
+    private float deathRandomTorqueImpulse = 1f;
+    private TurnManager turnManager;
+
     private void Awake()
     {
+        turnManager = FindFirstObjectByType<TurnManager>();
         if (currentHealth <= 0)
         {
             currentHealth = maxHealth;
@@ -55,6 +65,11 @@ public class Unit : MonoBehaviour
         if (!isAlive && IsTurnActive)
         {
             EndTurn();
+        }
+
+        if (!isAlive)
+        {
+            StartDeathSequence();
         }
     }
 
@@ -92,5 +107,56 @@ public class Unit : MonoBehaviour
         {
             SetAlive(false);
         }
+    }
+
+    private void StartDeathSequence()
+    {
+        if (deathSequenceStarted)
+        {
+            return;
+        }
+
+        deathSequenceStarted = true;
+
+        if (TryGetComponent(out Rigidbody body))
+        {
+            body.constraints &= ~RigidbodyConstraints.FreezeRotationX;
+            body.constraints &= ~RigidbodyConstraints.FreezeRotationZ;
+
+            if (deathRandomTorqueImpulse > 0f)
+            {
+                float x = UnityEngine.Random.Range(-1f, 1f);
+                float z = UnityEngine.Random.Range(-1f, 1f);
+                Vector3 torque = new Vector3(x, 0f, z);
+                if (torque.sqrMagnitude > 0.0001f)
+                {
+                    torque.Normalize();
+                }
+
+                body.AddTorque(torque * deathRandomTorqueImpulse, ForceMode.Impulse);
+            }
+        }
+
+        StartCoroutine(DeathSequence());
+    }
+
+    private IEnumerator DeathSequence()
+    {
+        if (deathEndDelay > 0f)
+        {
+            yield return new WaitForSeconds(deathEndDelay);
+        }
+
+        if (turnManager != null && turnManager.CurrentUnit == this)
+        {
+            turnManager.EndCurrentTurn();
+        }
+
+        if (deathVfxPrefab != null)
+        {
+            Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
+        }
+
+        Destroy(gameObject);
     }
 }

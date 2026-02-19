@@ -28,6 +28,13 @@ public class ThirdPersonCameraController : MonoBehaviour
     [SerializeField] private float maxPitch = 70f;
     [SerializeField] private bool lockCursor = true;
 
+    [Header("Intro")]
+    [SerializeField] private bool playIntro = true;
+    [SerializeField] private float introDuration = 5f;
+    [SerializeField] private Vector3 introOffset = new Vector3(0f, 40f, -50f);
+    [SerializeField] private float introRotationDegrees = 45f;
+    [SerializeField] private bool allowIntroSkip = true;
+
     private Transform target;
     private Transform overrideReturnTarget;
     private int overrideId;
@@ -48,6 +55,10 @@ public class ThirdPersonCameraController : MonoBehaviour
     private Vector3 overrideLastDirection;
     private float overrideYawOffset;
     private float overridePitchOffset;
+    private bool turnTransitionNotified;
+    private bool introPlaying;
+    private float introElapsed;
+    private Unit pendingIntroUnit;
 
     [Header("Collision")]
     [SerializeField] private float collisionRadius = 0.25f;
@@ -86,7 +97,16 @@ public class ThirdPersonCameraController : MonoBehaviour
 
     private void Start()
     {
-        if (turnManager != null && turnManager.CurrentUnit != null)
+        if (playIntro && introDuration > 0f)
+        {
+            introPlaying = true;
+            introElapsed = 0f;
+            if (turnManager != null && turnManager.CurrentUnit != null)
+            {
+                pendingIntroUnit = turnManager.CurrentUnit;
+            }
+        }
+        else if (turnManager != null && turnManager.CurrentUnit != null)
         {
             SetTarget(turnManager.CurrentUnit.transform, true);
         }
@@ -100,6 +120,12 @@ public class ThirdPersonCameraController : MonoBehaviour
 
     private void LateUpdate()
     {
+        if (introPlaying)
+        {
+            UpdateIntro();
+            return;
+        }
+
         if (target == null)
         {
             return;
@@ -161,6 +187,14 @@ public class ThirdPersonCameraController : MonoBehaviour
             transform.SetPositionAndRotation(position, rot);
             return;
         }
+        else if (!turnTransitionNotified)
+        {
+            turnTransitionNotified = true;
+            if (turnManager != null)
+            {
+                turnManager.NotifyTurnTransitionComplete();
+            }
+        }
 
         Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, desiredPosition, ref followVelocity, followSmoothTime);
         transform.SetPositionAndRotation(smoothedPosition, rotation);
@@ -168,10 +202,23 @@ public class ThirdPersonCameraController : MonoBehaviour
 
     private void HandleTurnStarted(Unit unit)
     {
-        if (unit != null)
+        if (unit == null)
         {
-            SetTarget(unit.transform, true);
+            return;
         }
+
+        if (overrideActive)
+        {
+            overrideReturnTarget = unit.transform;
+        }
+
+        if (introPlaying)
+        {
+            pendingIntroUnit = unit;
+            return;
+        }
+
+        SetTarget(unit.transform, true);
     }
 
     /// <summary>
@@ -277,6 +324,60 @@ public class ThirdPersonCameraController : MonoBehaviour
         turnTransitionElapsed = 0f;
         turnTransitionStartPos = transform.position;
         turnTransitionStartRot = transform.rotation;
+        turnTransitionNotified = false;
+    }
+
+    private void UpdateIntro()
+    {
+        if (allowIntroSkip && IsIntroSkipPressed())
+        {
+            EndIntro();
+            return;
+        }
+
+        introElapsed += Time.deltaTime;
+        float duration = Mathf.Max(0.01f, introDuration);
+        float t = Mathf.Clamp01(introElapsed / duration);
+        float angle = t * introRotationDegrees;
+        Vector3 pivot = Vector3.zero;
+        Vector3 rotatedOffset = Quaternion.AngleAxis(angle, Vector3.up) * introOffset;
+        Vector3 position = pivot + rotatedOffset;
+        Quaternion rotation = Quaternion.LookRotation(pivot - position, Vector3.up);
+        transform.SetPositionAndRotation(position, rotation);
+
+        if (introElapsed >= introDuration)
+        {
+            EndIntro();
+        }
+    }
+
+    private void EndIntro()
+    {
+        introPlaying = false;
+        introElapsed = 0f;
+        if (pendingIntroUnit != null)
+        {
+            SetTarget(pendingIntroUnit.transform, true);
+            pendingIntroUnit = null;
+        }
+    }
+
+    private static bool IsIntroSkipPressed()
+    {
+        bool keyboardPressed = Keyboard.current != null && Keyboard.current.anyKey.wasPressedThisFrame;
+        if (keyboardPressed)
+        {
+            return true;
+        }
+
+        if (Mouse.current == null)
+        {
+            return false;
+        }
+
+        return Mouse.current.leftButton.wasPressedThisFrame
+            || Mouse.current.rightButton.wasPressedThisFrame
+            || Mouse.current.middleButton.wasPressedThisFrame;
     }
 
     private void OnLookPerformed(InputAction.CallbackContext context)
@@ -332,4 +433,6 @@ public class ThirdPersonCameraController : MonoBehaviour
         overrideYawOffset = 0f;
         overridePitchOffset = 0f;
     }
+
+    public bool IsTemporaryFollowActive => overrideActive;
 }

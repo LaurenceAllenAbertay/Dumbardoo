@@ -306,6 +306,10 @@ public class UnitActionController : MonoBehaviour
         if (selectedAction.TryExecute(unit, turnManager))
         {
             actionUsed = true;
+            if (turnManager != null)
+            {
+                turnManager.NotifyActionEnded(unit);
+            }
         }
     }
 

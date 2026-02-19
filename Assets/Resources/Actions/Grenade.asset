@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionName: Grenade
   grenadePrefab: {fileID: 2269527813549029088, guid: cd5c5df60fe686f46acda8fe2a4aee00, type: 3}
-  minThrowForce: 4
+  minThrowForce: 2
   maxThrowForce: 20
   chargeSpeed: 1.5
-  spawnOffset: {x: 0, y: 1.2, z: 0.6}
+  spawnOffset: {x: 0, y: 2, z: 0}
   fuseSeconds: 3
   explosionRadius: 6
   damage: 20

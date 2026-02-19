@@ -2,19 +2,29 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Displays world-space UI for a unit, including health and name.
+/// </summary>
 public class UnitWorldUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Unit unit;
     [SerializeField] private Slider healthSlider;
+    [SerializeField] private Image healthFillImage;
     [SerializeField] private TMP_Text nameText;
     [SerializeField] private Transform cameraTransform;
     [SerializeField] private Canvas targetCanvas;
     [SerializeField] private bool hideWhenCameraClose = true;
     [SerializeField] private float hideDistance = 1.5f;
 
+    [Header("Team Colors")]
+    [SerializeField] private Color teamOneFillColor = new Color(0.2f, 0.55f, 1f, 1f);
+    [SerializeField] private Color teamTwoFillColor = new Color(1f, 0.3f, 0.3f, 1f);
+
     private int lastHealth = -1;
     private int lastMaxHealth = -1;
+    private int lastTeamId = int.MinValue;
+    private Color defaultFillColor = Color.white;
 
     private void Awake()
     {
@@ -26,6 +36,14 @@ public class UnitWorldUI : MonoBehaviour
         if (healthSlider == null)
         {
             healthSlider = GetComponentInChildren<Slider>(true);
+        }
+        if (healthFillImage == null && healthSlider != null && healthSlider.fillRect != null)
+        {
+            healthFillImage = healthSlider.fillRect.GetComponent<Image>();
+        }
+        if (healthFillImage != null)
+        {
+            defaultFillColor = healthFillImage.color;
         }
 
         if (nameText == null)
@@ -55,6 +73,7 @@ public class UnitWorldUI : MonoBehaviour
     {
         UpdateBillboard();
         UpdateHealth();
+        UpdateTeamColor();
         UpdateVisibility();
     }
 
@@ -102,7 +121,9 @@ public class UnitWorldUI : MonoBehaviour
 
         lastHealth = -1;
         lastMaxHealth = -1;
+        lastTeamId = int.MinValue;
         UpdateHealth();
+        UpdateTeamColor();
     }
 
     private void UpdateVisibility()
@@ -137,6 +158,34 @@ public class UnitWorldUI : MonoBehaviour
         if (unit != null && nameText != null)
         {
             nameText.text = unit.name;
+        }
+    }
+
+    private void UpdateTeamColor()
+    {
+        if (unit == null || healthFillImage == null)
+        {
+            return;
+        }
+
+        int teamId = unit.TeamId;
+        if (teamId == lastTeamId)
+        {
+            return;
+        }
+
+        lastTeamId = teamId;
+        if (teamId == 0)
+        {
+            healthFillImage.color = teamOneFillColor;
+        }
+        else if (teamId == 1)
+        {
+            healthFillImage.color = teamTwoFillColor;
+        }
+        else
+        {
+            healthFillImage.color = defaultFillColor;
         }
     }
 }

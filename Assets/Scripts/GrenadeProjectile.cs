@@ -10,6 +10,7 @@ public class GrenadeProjectile : MonoBehaviour
     [SerializeField] private float explosionRadius = 3f;
     [SerializeField] private int damage = 20;
     [SerializeField, Range(0f, 1f)] private float minDamagePercent = 0.2f;
+    [SerializeField, Range(0f, 1f)] private float minKnockbackPercent = 0.35f;
     [SerializeField] private float explosionForce = 12f;
     [SerializeField] private float explosionUpForce = 3f;
     [SerializeField] private LayerMask hitMask = ~0;
@@ -94,9 +95,15 @@ public class GrenadeProjectile : MonoBehaviour
             Rigidbody body = hit.attachedRigidbody ?? target.GetComponent<Rigidbody>();
             if (body != null)
             {
-                float force = explosionForce * falloff;
-                float upForce = explosionUpForce * falloff;
-                body.AddExplosionForce(force, transform.position, explosionRadius, upForce, ForceMode.VelocityChange);
+                Vector3 toBody = body.worldCenterOfMass - transform.position;
+                float distance = toBody.magnitude;
+                Vector3 direction = distance > 0.0001f ? toBody / distance : Vector3.up;
+                float t = explosionRadius > 0.0001f ? Mathf.Clamp01(1f - (distance / explosionRadius)) : 1f;
+                float forceFalloff = Mathf.Lerp(minKnockbackPercent, 1f, t);
+                float force = explosionForce * forceFalloff;
+                float upForce = explosionUpForce * forceFalloff;
+                Vector3 impulse = direction * force + Vector3.up * upForce;
+                body.AddForce(impulse, ForceMode.VelocityChange);
             }
         }
 
