@@ -11,8 +11,7 @@ public class Unit : MonoBehaviour
     [SerializeField] private int maxHealth = 100;
     [SerializeField] private int currentHealth = 100;
     [SerializeField] private GameObject deathVfxPrefab;
-    [FormerlySerializedAs("deathVfxDelay")]
-    [SerializeField] private float deathEndDelay = 3f;
+    [SerializeField] private float deathEndDelay = 2f;
 
     public int TeamId => teamId;
     public bool IsAlive => isAlive;

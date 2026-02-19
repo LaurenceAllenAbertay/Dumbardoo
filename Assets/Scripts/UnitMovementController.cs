@@ -30,6 +30,13 @@ public class UnitMovementController : MonoBehaviour
     private bool wasGrounded;
     private bool loggedMissingRefs;
 
+    public InputActionReference JumpAction => jumpAction;
+    public InputActionReference MoveAction => moveAction;
+    public Transform CameraTransform => cameraTransform;
+    public float GroundCheckRadius => groundCheckRadius;
+    public float GroundCheckDistance => groundCheckDistance;
+    public LayerMask GroundMask => groundMask;
+
     private void Awake()
     {
         unit = GetComponent<Unit>();

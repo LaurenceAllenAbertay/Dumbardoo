@@ -5,6 +5,7 @@ public abstract class UnitAction : ScriptableObject
     [SerializeField] private string actionName = "Action";
 
     public string ActionName => actionName;
+    public virtual bool EndsActionImmediately => true;
 
     public bool TryExecute(Unit unit, TurnManager turnManager)
     {
