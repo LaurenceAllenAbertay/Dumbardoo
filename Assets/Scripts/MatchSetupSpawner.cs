@@ -24,6 +24,12 @@ public class MatchSetupSpawner : MonoBehaviour
     [SerializeField] private TurnManager turnManager;
     [SerializeField] private TeamCurrencyManager currencyManager;
 
+    // Tracks the root GameObjects that own each team's units so they can be
+    // destroyed cleanly at the start of every new round.
+    private readonly List<GameObject> teamRoots = new List<GameObject>();
+
+    // ── Unity lifecycle ───────────────────────────────────────────────────────
+
     private void Awake()
     {
         if (unitPrefab == null || spawnVolume == null)
@@ -48,14 +54,66 @@ public class MatchSetupSpawner : MonoBehaviour
         }
 
         EnsureDefaultSetup();
+
         if (currencyManager != null)
         {
             currencyManager.InitializeFromMatchSetupData();
         }
+
         SpawnTeams();
         ApplyTeamUI();
         ResetTurns();
     }
+
+    private void OnEnable()
+    {
+        Unit.UnitDied += OnUnitDied;
+    }
+
+    private void OnDisable()
+    {
+        Unit.UnitDied -= OnUnitDied;
+    }
+
+    // ── Public API ────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Called by ShopManager after every team has finished shopping.
+    /// Destroys all existing units, respawns them at new random positions,
+    /// restores their action loadouts from the roster (including any changes
+    /// made in the shop), and restarts the turn order.
+    /// </summary>
+    public void RespawnForNewRound()
+    {
+        // Save current actions for units still alive (dead units were already
+        // saved by OnUnitDied when they took their fatal hit).
+        SyncAliveUnitsToRoster();
+
+        // Destroy every team root and all the unit children under it.
+        foreach (GameObject root in teamRoots)
+        {
+            if (root != null)
+            {
+                Destroy(root);
+            }
+        }
+
+        teamRoots.Clear();
+
+        // Reset currency for a clean new round.
+        if (currencyManager != null)
+        {
+            currencyManager.InitializeFromMatchSetupData();
+        }
+
+        // Respawn — SpawnTeams detects that UnitSlots is already populated and
+        // applies the saved actions instead of reading the prefab defaults.
+        SpawnTeams();
+        ApplyTeamUI();
+        ResetTurns();
+    }
+
+    // ── Private helpers ───────────────────────────────────────────────────────
 
     private void EnsureDefaultSetup()
     {
@@ -78,25 +136,53 @@ public class MatchSetupSpawner : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Spawns (or respawns) all units.
+    /// • First round  — UnitSlots is empty; slots are initialised here and the
+    ///                  prefab's default action loadout is saved into each slot.
+    /// • Later rounds — UnitSlots already has entries with the actions chosen
+    ///                  in the shop; LiveUnit references are updated in place
+    ///                  and the saved actions are applied to each new unit.
+    /// </summary>
     private void SpawnTeams()
     {
         Bounds bounds = spawnVolume.bounds;
+
         for (int teamIndex = 0; teamIndex < MatchSetupData.Teams.Count; teamIndex++)
         {
             MatchSetupData.TeamSetup team = MatchSetupData.Teams[teamIndex];
-            int teamId = teamIndex;
-            string teamName = string.IsNullOrWhiteSpace(team.TeamName) ? $"Team {teamIndex + 1}" : team.TeamName;
-            GameObject teamRoot = new GameObject(teamName);
+            bool isRespawn = team.UnitSlots.Count > 0;
 
-            for (int unitIndex = 0; unitIndex < team.UnitCount; unitIndex++)
+            if (!isRespawn)
             {
+                // First spawn: create one slot entry per unit.
+                team.UnitSlots.Clear();
+                for (int i = 0; i < team.UnitCount; i++)
+                {
+                    team.UnitSlots.Add(new MatchSetupData.UnitSlotData(GetUnitName(team, i)));
+                }
+            }
+
+            string teamName = string.IsNullOrWhiteSpace(team.TeamName)
+                ? $"Team {teamIndex + 1}"
+                : team.TeamName;
+
+            GameObject teamRoot = new GameObject(teamName);
+            teamRoots.Add(teamRoot);
+
+            for (int unitIndex = 0; unitIndex < team.UnitSlots.Count; unitIndex++)
+            {
+                MatchSetupData.UnitSlotData slotData = team.UnitSlots[unitIndex];
+
                 Vector3 spawnPoint = FindSpawnPoint(bounds);
                 Unit unitInstance = Instantiate(unitPrefab, spawnPoint, Quaternion.identity);
                 unitInstance.transform.SetParent(teamRoot.transform, true);
-                unitInstance.SetTeamId(teamId);
+                unitInstance.SetTeamId(teamIndex);
+                unitInstance.SetUnitName(slotData.UnitName);
 
-                string unitName = GetUnitName(team, unitIndex);
-                unitInstance.SetUnitName(unitName);
+                // Update the roster to point at the freshly created unit.
+                slotData.LiveUnit = unitInstance;
+
                 UnitWorldUI worldUI = unitInstance.GetComponentInChildren<UnitWorldUI>(true);
                 if (worldUI != null)
                 {
@@ -104,12 +190,36 @@ public class MatchSetupSpawner : MonoBehaviour
                 }
 
                 UnitActionController actionController = unitInstance.GetComponent<UnitActionController>();
-                if (actionController != null && turnManager != null)
+                if (actionController != null)
                 {
-                    actionController.SetTurnManager(turnManager);
+                    if (turnManager != null)
+                    {
+                        actionController.SetTurnManager(turnManager);
+                    }
+
+                    if (isRespawn)
+                    {
+                        // Apply the actions saved from the previous round / shop.
+                        for (int i = 0; i < 3; i++)
+                        {
+                            if (slotData.Actions[i] != null)
+                            {
+                                actionController.SetSlot(i, slotData.Actions[i]);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Record the prefab's default actions so the shop can
+                        // show them and future respawns can restore them.
+                        for (int i = 0; i < 3; i++)
+                        {
+                            slotData.Actions[i] = actionController.GetSlot(i);
+                        }
+                    }
                 }
 
-                ApplyTeamMaterial(unitInstance, teamId);
+                ApplyTeamMaterial(unitInstance, teamIndex);
             }
         }
     }
@@ -137,6 +247,72 @@ public class MatchSetupSpawner : MonoBehaviour
 
         turnManager.BuildTurnOrder();
         turnManager.StartTurns();
+    }
+
+    /// <summary>
+    /// Writes each alive unit's current action loadout into its roster slot
+    /// so nothing is lost when the unit is destroyed during RespawnForNewRound.
+    /// </summary>
+    private void SyncAliveUnitsToRoster()
+    {
+        foreach (MatchSetupData.TeamSetup team in MatchSetupData.Teams)
+        {
+            foreach (MatchSetupData.UnitSlotData slot in team.UnitSlots)
+            {
+                if (slot.LiveUnit == null)
+                {
+                    continue;
+                }
+
+                UnitActionController ctrl = slot.LiveUnit.GetComponent<UnitActionController>();
+                if (ctrl == null)
+                {
+                    continue;
+                }
+
+                for (int i = 0; i < 3; i++)
+                {
+                    slot.Actions[i] = ctrl.GetSlot(i);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Listens to Unit.UnitDied so that a dying unit's action loadout is saved
+    /// to its roster slot before the GameObject is destroyed.
+    /// </summary>
+    private void OnUnitDied(Unit unit)
+    {
+        if (unit == null)
+        {
+            return;
+        }
+
+        foreach (MatchSetupData.TeamSetup team in MatchSetupData.Teams)
+        {
+            foreach (MatchSetupData.UnitSlotData slot in team.UnitSlots)
+            {
+                if (slot.LiveUnit != unit)
+                {
+                    continue;
+                }
+
+                // Save the loadout while the GameObject is still fully intact.
+                UnitActionController ctrl = unit.GetComponent<UnitActionController>();
+                if (ctrl != null)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        slot.Actions[i] = ctrl.GetSlot(i);
+                    }
+                }
+
+                // Clear the live reference — the GameObject is about to be destroyed.
+                slot.LiveUnit = null;
+                return;
+            }
+        }
     }
 
     private Vector3 FindSpawnPoint(Bounds bounds)

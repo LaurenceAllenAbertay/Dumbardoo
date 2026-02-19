@@ -435,4 +435,11 @@ public class ThirdPersonCameraController : MonoBehaviour
     }
 
     public bool IsTemporaryFollowActive => overrideActive;
+
+    /// <summary>
+    /// The world-space offset used as the camera's starting position during
+    /// the intro sequence (at rotation angle 0). ShopManager repositions the
+    /// camera here when the shop is open.
+    /// </summary>
+    public Vector3 IntroOffset => introOffset;
 }

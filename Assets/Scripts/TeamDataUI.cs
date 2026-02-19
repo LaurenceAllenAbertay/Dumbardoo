@@ -10,10 +10,14 @@ public class TeamDataUI : MonoBehaviour
     [SerializeField] private Transform unitsRemainingRoot;
     [SerializeField] private GameObject playerRemainingPrefab;
     [SerializeField] private Slider totalHealthSlider;
+    [SerializeField] private TMP_Text goldText;
 
     [Header("Team")]
     [SerializeField] private int teamId = 0;
     [SerializeField] private string teamName = "Team";
+
+    [Header("Currency")]
+    [SerializeField] private TeamCurrencyManager currencyManager;
 
     private readonly List<Unit> teamUnits = new List<Unit>();
     private int initialTotalMaxHealth;
@@ -42,6 +46,25 @@ public class TeamDataUI : MonoBehaviour
     {
         RefreshUnits();
         RefreshAll();
+
+        if (currencyManager == null)
+        {
+            currencyManager = UnityEngine.Object.FindFirstObjectByType<TeamCurrencyManager>();
+        }
+
+        if (currencyManager != null)
+        {
+            currencyManager.GoldChanged += OnGoldChanged;
+            UpdateGold();
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (currencyManager != null)
+        {
+            currencyManager.GoldChanged -= OnGoldChanged;
+        }
     }
 
     private void LateUpdate()
@@ -64,8 +87,14 @@ public class TeamDataUI : MonoBehaviour
             teamName = name;
         }
 
+        if (currencyManager == null)
+        {
+            currencyManager = UnityEngine.Object.FindFirstObjectByType<TeamCurrencyManager>();
+        }
+
         RefreshUnits();
         RefreshAll();
+        UpdateGold();
     }
 
     private void RefreshUnits()
@@ -162,6 +191,24 @@ public class TeamDataUI : MonoBehaviour
         lastMaxHealth = max;
         totalHealthSlider.maxValue = max;
         totalHealthSlider.value = Mathf.Clamp(total, 0, max);
+    }
+
+    private void UpdateGold()
+    {
+        if (goldText == null || currencyManager == null)
+        {
+            return;
+        }
+
+        goldText.text = $"${currencyManager.GetGold(teamId)}";
+    }
+
+    private void OnGoldChanged(int changedTeamId, int newGold)
+    {
+        if (changedTeamId == teamId)
+        {
+            UpdateGold();
+        }
     }
 
     private void PruneDeadUnits()

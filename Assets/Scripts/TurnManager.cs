@@ -210,7 +210,7 @@ public class TurnManager : MonoBehaviour
         if (CheckForWinner(out var winningTeamId))
         {
             TeamWon?.Invoke(winningTeamId);
-            Debug.Log($"Team {winningTeamId} wins.");
+            Debug.Log($"Team {winningTeamId+1} wins.");
             return;
         }
 

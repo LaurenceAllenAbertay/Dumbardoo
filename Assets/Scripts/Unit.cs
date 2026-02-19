@@ -20,9 +20,27 @@ public class Unit : MonoBehaviour
     public int CurrentHealth => currentHealth;
     public bool IsTurnActive { get; private set; }
 
+    /// <summary>
+    /// The last enemy unit that dealt damage to this unit.
+    /// Used by KillBox to attribute environmental kills to the correct attacker.
+    /// </summary>
+    public Unit LastAttacker { get; private set; }
+
+    /// <summary>
+    /// The action name used in the last enemy hit. Passed through to KillBox attribution.
+    /// </summary>
+    public string LastAttackerAction { get; private set; }
+
     public event Action<Unit> TurnStarted;
     public event Action<Unit> TurnEnded;
     public static event Action<Unit, Unit, int, string> DamageApplied;
+
+    /// <summary>
+    /// Fired immediately when a unit's health reaches zero, before the death
+    /// sequence starts. Listeners (e.g. MatchSetupSpawner) can save the unit's
+    /// state while the GameObject is still fully intact.
+    /// </summary>
+    public static event Action<Unit> UnitDied;
 
     private bool deathSequenceStarted;
     private float deathRandomTorqueImpulse = 1f;
@@ -43,6 +61,12 @@ public class Unit : MonoBehaviour
         {
             return;
         }
+
+        // Clear attacker tracking at the start of this unit's own turn.
+        // Knockback from the previous turn has already resolved; if the unit
+        // now walks off an edge under their own control no one should get credit.
+        LastAttacker = null;
+        LastAttackerAction = null;
 
         IsTurnActive = true;
         TurnStarted?.Invoke(this);
@@ -69,6 +93,7 @@ public class Unit : MonoBehaviour
 
         if (!isAlive)
         {
+            UnitDied?.Invoke(this);
             StartDeathSequence();
         }
     }
@@ -96,6 +121,13 @@ public class Unit : MonoBehaviour
         if (!isAlive || amount <= 0)
         {
             return;
+        }
+
+        // Track the last enemy that dealt damage so KillBox can attribute the kill.
+        if (source != null && source != this && source.TeamId != teamId)
+        {
+            LastAttacker = source;
+            LastAttackerAction = string.IsNullOrWhiteSpace(actionName) ? "UnknownAction" : actionName;
         }
 
         currentHealth = Mathf.Max(0, currentHealth - amount);

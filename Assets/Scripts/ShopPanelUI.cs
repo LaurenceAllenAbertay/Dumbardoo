@@ -40,6 +40,8 @@ public class ShopPanelUI : MonoBehaviour
 
     public int TeamId => teamId;
 
+    // ── Unity lifecycle ───────────────────────────────────────────────────────
+
     private void OnDisable()
     {
         if (currencyManager != null)
@@ -47,6 +49,8 @@ public class ShopPanelUI : MonoBehaviour
             currencyManager.GoldChanged -= OnGoldChanged;
         }
     }
+
+    // ── Public API ────────────────────────────────────────────────────────────
 
     public void Open(TeamCurrencyManager manager, int team, string name)
     {
@@ -77,6 +81,8 @@ public class ShopPanelUI : MonoBehaviour
         pendingAction = null;
         pendingPrice = 0;
     }
+
+    // ── Private helpers ───────────────────────────────────────────────────────
 
     private void UpdateTitle()
     {
@@ -137,6 +143,11 @@ public class ShopPanelUI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Builds the unit list from the team's roster in MatchSetupData.
+    /// This includes units that have already died this round, so players can
+    /// pre-assign actions to every unit before the next round begins.
+    /// </summary>
     private void BuildUnitList()
     {
         if (unitListRoot == null || unitCurrentActionsPrefab == null)
@@ -151,15 +162,19 @@ public class ShopPanelUI : MonoBehaviour
 
         unitEntries.Clear();
 
-        var units = FindObjectsByType<Unit>(FindObjectsSortMode.None);
-        foreach (var unit in units)
+        if (teamId >= MatchSetupData.Teams.Count)
         {
-            if (unit != null && unit.TeamId == teamId)
-            {
-                UnitCurrentActionsUI entry = Instantiate(unitCurrentActionsPrefab, unitListRoot);
-                entry.Initialize(unit, OnSlotSelected);
-                unitEntries.Add(entry);
-            }
+            return;
+        }
+
+        List<MatchSetupData.UnitSlotData> slots = MatchSetupData.Teams[teamId].UnitSlots;
+
+        for (int i = 0; i < slots.Count; i++)
+        {
+            int capturedUnitSlot = i;
+            UnitCurrentActionsUI entry = Instantiate(unitCurrentActionsPrefab, unitListRoot);
+            entry.Initialize(slots[i], actionSlotIndex => OnSlotSelected(capturedUnitSlot, actionSlotIndex));
+            unitEntries.Add(entry);
         }
     }
 
@@ -181,9 +196,26 @@ public class ShopPanelUI : MonoBehaviour
         SetInfoText(selectReplaceText);
     }
 
-    private void OnSlotSelected(Unit unit, int slotIndex)
+    /// <summary>
+    /// Called when the player clicks an action slot on a unit entry.
+    /// Updates both the persistent roster and (if the unit is still alive)
+    /// its live UnitActionController.
+    /// </summary>
+    private void OnSlotSelected(int unitSlotIndex, int actionSlotIndex)
     {
         if (pendingAction == null || currencyManager == null)
+        {
+            return;
+        }
+
+        if (teamId >= MatchSetupData.Teams.Count)
+        {
+            return;
+        }
+
+        List<MatchSetupData.UnitSlotData> slots = MatchSetupData.Teams[teamId].UnitSlots;
+
+        if (unitSlotIndex < 0 || unitSlotIndex >= slots.Count)
         {
             return;
         }
@@ -196,13 +228,31 @@ public class ShopPanelUI : MonoBehaviour
             return;
         }
 
-        UnitActionController controller = unit != null ? unit.GetComponent<UnitActionController>() : null;
-        if (controller != null)
+        MatchSetupData.UnitSlotData slotData = slots[unitSlotIndex];
+
+        // Persist in roster (used on next-round respawn).
+        if (actionSlotIndex >= 0 && actionSlotIndex < slotData.Actions.Length)
         {
-            controller.SetSlot(slotIndex, pendingAction);
-            RefreshUnitEntry(unit);
+            slotData.Actions[actionSlotIndex] = pendingAction;
         }
 
+        // Also update the live controller if the unit is still alive.
+        if (slotData.LiveUnit != null)
+        {
+            UnitActionController controller = slotData.LiveUnit.GetComponent<UnitActionController>();
+            if (controller != null)
+            {
+                controller.SetSlot(actionSlotIndex, pendingAction);
+            }
+        }
+
+        // Refresh the entry icon.
+        if (unitSlotIndex < unitEntries.Count && unitEntries[unitSlotIndex] != null)
+        {
+            unitEntries[unitSlotIndex].Refresh();
+        }
+
+        // Mark the offer as sold out.
         if (pendingOfferIndex >= 0 && pendingOfferIndex < offers.Count)
         {
             ShopOffer offer = offers[pendingOfferIndex];
@@ -220,18 +270,6 @@ public class ShopPanelUI : MonoBehaviour
         SetInfoText(purchaseCompleteText);
     }
 
-    private void RefreshUnitEntry(Unit unit)
-    {
-        foreach (var entry in unitEntries)
-        {
-            if (entry != null && entry.Unit == unit)
-            {
-                entry.Refresh();
-                break;
-            }
-        }
-    }
-
     private void SetInfoText(string message)
     {
         if (infoText != null)
@@ -247,11 +285,6 @@ public class ShopPanelUI : MonoBehaviour
         foreach (var action in actions)
         {
             if (action == null)
-            {
-                continue;
-            }
-
-            if (action is GunAction || action is PunchAction || action is GrenadeAction)
             {
                 continue;
             }

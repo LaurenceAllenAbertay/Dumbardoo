@@ -28,6 +28,27 @@ public class UnitActionController : MonoBehaviour
     private float currentChargeForce;
     private bool turnEventsBound;
 
+    /// <summary>True while the player is holding the confirm button to charge a grenade throw.</summary>
+    public bool IsCharging => isCharging;
+
+    /// <summary>
+    /// Charge progress in the range [0, 1] driven by the same PingPong used for
+    /// currentChargeForce, so the slider mirrors exactly what the throw will do.
+    /// Returns 0 when not charging or when no grenade is selected.
+    /// </summary>
+    public float ChargeNormalized
+    {
+        get
+        {
+            if (!isCharging || !(selectedAction is GrenadeAction grenade))
+            {
+                return 0f;
+            }
+
+            return Mathf.PingPong(chargeTime * grenade.ChargeSpeed, 1f);
+        }
+    }
+
     private void Awake()
     {
         unit = GetComponent<Unit>();
@@ -72,6 +93,13 @@ public class UnitActionController : MonoBehaviour
 
     private void OnConfirm(InputAction.CallbackContext context)
     {
+        // Enter is also bound to EndTurn. Ignore keyboard triggers here so that
+        // pressing Enter to end a turn does not simultaneously fire the action.
+        if (context.control?.device is UnityEngine.InputSystem.Keyboard)
+        {
+            return;
+        }
+
         if (selectedAction == null)
         {
             return;
@@ -329,6 +357,12 @@ public class UnitActionController : MonoBehaviour
         }
     }
 
+    /// <summary>Returns a snapshot of all three action slots.</summary>
+    public UnitAction[] GetActions()
+    {
+        return new UnitAction[] { slot1, slot2, slot3 };
+    }
+
     public void SetSlot(int index, UnitAction action)
     {
         switch (index)
@@ -353,6 +387,20 @@ public class UnitActionController : MonoBehaviour
         }
 
         slot = action;
+    }
+
+    /// <summary>
+    /// Selects the action in the given slot (0-based), matching keyboard Action1/2/3 behaviour.
+    /// Safe to call from UI; does nothing when it is not this unit's action phase.
+    /// </summary>
+    public void SelectSlotByIndex(int index)
+    {
+        switch (index)
+        {
+            case 0: Select(slot1); break;
+            case 1: Select(slot2); break;
+            case 2: Select(slot3); break;
+        }
     }
 
     public void SetTurnManager(TurnManager manager)

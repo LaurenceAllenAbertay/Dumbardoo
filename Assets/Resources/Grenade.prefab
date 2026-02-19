@@ -48,7 +48,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 620eacad74ce2e247a199f5a60415f11, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fuseSeconds: 3
+  fuseSeconds: 4
   explosionRadius: 4
   damage: 20
   minDamagePercent: 0.1

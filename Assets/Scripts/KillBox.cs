@@ -35,6 +35,10 @@ public class KillBox : MonoBehaviour
             return;
         }
 
-        unit.ApplyDamage(unit.CurrentHealth, null, "KillBox");
+        // Credit the kill to whoever last hit this unit (e.g. knocked them off a ledge).
+        // If nobody has hit them yet, source stays null and the kill is unattributed.
+        Unit attacker = unit.LastAttacker;
+        string actionLabel = attacker != null ? unit.LastAttackerAction : "KillBox";
+        unit.ApplyDamage(unit.CurrentHealth, attacker, actionLabel);
     }
 }
