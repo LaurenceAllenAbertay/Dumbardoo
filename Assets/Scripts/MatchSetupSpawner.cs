@@ -12,10 +12,6 @@ public class MatchSetupSpawner : MonoBehaviour
              "if there are more units than points a second shuffle pass fills the overflow.")]
     [SerializeField] private Transform[] spawnPoints = new Transform[0];
 
-    [Header("Team Materials")]
-    [SerializeField] private Material team1Material;
-    [SerializeField] private Material team2Material;
-
     [Header("UI")]
     [SerializeField] private TeamDataUI[] teamUIs = new TeamDataUI[0];
 
@@ -240,7 +236,6 @@ public class MatchSetupSpawner : MonoBehaviour
                     }
                 }
 
-                ApplyTeamMaterial(unitInstance, teamIndex);
             }
         }
     }
@@ -409,23 +404,4 @@ public class MatchSetupSpawner : MonoBehaviour
         return $"Unit {index + 1}";
     }
 
-    private void ApplyTeamMaterial(Unit unitInstance, int teamId)
-    {
-        if (unitInstance == null)
-        {
-            return;
-        }
-
-        Material material = teamId == 0 ? team1Material : team2Material;
-        if (material == null)
-        {
-            return;
-        }
-
-        Renderer[] renderers = unitInstance.GetComponentsInChildren<Renderer>(true);
-        foreach (var renderer in renderers)
-        {
-            renderer.sharedMaterial = material;
-        }
-    }
 }

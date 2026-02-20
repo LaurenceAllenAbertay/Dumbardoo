@@ -28,24 +28,24 @@ public class UnitActionController : MonoBehaviour
     private float currentChargeForce;
     private bool turnEventsBound;
 
-    /// <summary>True while the player is holding the confirm button to charge a grenade throw.</summary>
+    /// <summary>True while the player is holding the confirm button to charge a Dynamite throw.</summary>
     public bool IsCharging => isCharging;
 
     /// <summary>
     /// Charge progress in the range [0, 1] driven by the same PingPong used for
     /// currentChargeForce, so the slider mirrors exactly what the throw will do.
-    /// Returns 0 when not charging or when no grenade is selected.
+    /// Returns 0 when not charging or when no Dynamite is selected.
     /// </summary>
     public float ChargeNormalized
     {
         get
         {
-            if (!isCharging || !(selectedAction is GrenadeAction grenade))
+            if (!isCharging || !(selectedAction is DynamiteAction Dynamite))
             {
                 return 0f;
             }
 
-            return Mathf.PingPong(chargeTime * grenade.ChargeSpeed, 1f);
+            return Mathf.PingPong(chargeTime * Dynamite.ChargeSpeed, 1f);
         }
     }
 
@@ -110,7 +110,7 @@ public class UnitActionController : MonoBehaviour
             return;
         }
 
-        if (selectedAction is GrenadeAction)
+        if (selectedAction is DynamiteAction)
         {
             return;
         }
@@ -125,8 +125,8 @@ public class UnitActionController : MonoBehaviour
             return;
         }
 
-        GrenadeAction grenade = selectedAction as GrenadeAction;
-        if (grenade == null)
+        DynamiteAction Dynamite = selectedAction as DynamiteAction;
+        if (Dynamite == null)
         {
             return;
         }
@@ -138,7 +138,7 @@ public class UnitActionController : MonoBehaviour
 
         isCharging = true;
         chargeTime = 0f;
-        currentChargeForce = grenade.MinThrowForce;
+        currentChargeForce = Dynamite.MinThrowForce;
     }
 
     private void OnConfirmCanceled(InputAction.CallbackContext context)
@@ -150,13 +150,13 @@ public class UnitActionController : MonoBehaviour
 
         isCharging = false;
 
-        GrenadeAction grenade = selectedAction as GrenadeAction;
-        if (grenade == null)
+        DynamiteAction Dynamite = selectedAction as DynamiteAction;
+        if (Dynamite == null)
         {
             return;
         }
 
-        grenade.SetThrowForce(currentChargeForce);
+        Dynamite.SetThrowForce(currentChargeForce);
         ExecuteSelected();
     }
 
@@ -263,8 +263,8 @@ public class UnitActionController : MonoBehaviour
             return;
         }
 
-        GrenadeAction grenade = selectedAction as GrenadeAction;
-        if (grenade == null)
+        DynamiteAction Dynamite = selectedAction as DynamiteAction;
+        if (Dynamite == null)
         {
             isCharging = false;
             return;
@@ -277,8 +277,8 @@ public class UnitActionController : MonoBehaviour
         }
 
         chargeTime += Time.deltaTime;
-        float t = Mathf.PingPong(chargeTime * grenade.ChargeSpeed, 1f);
-        currentChargeForce = Mathf.Lerp(grenade.MinThrowForce, grenade.MaxThrowForce, t);
+        float t = Mathf.PingPong(chargeTime * Dynamite.ChargeSpeed, 1f);
+        currentChargeForce = Mathf.Lerp(Dynamite.MinThrowForce, Dynamite.MaxThrowForce, t);
     }
 
     private static void Bind(InputActionReference actionRef, System.Action<InputAction.CallbackContext> handler)

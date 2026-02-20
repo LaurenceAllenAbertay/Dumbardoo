@@ -4,7 +4,7 @@ using UnityEngine;
 /// Handles grenade fuse timing and explosion behavior.
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
-public class GrenadeProjectile : MonoBehaviour
+public class DynamiteProjectile : MonoBehaviour
 {
     [SerializeField] private float fuseSeconds = 3f;
     [SerializeField] private float explosionRadius = 3f;

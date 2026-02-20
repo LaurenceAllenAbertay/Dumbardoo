@@ -1,12 +1,12 @@
 using UnityEngine;
 
 /// <summary>
-/// Throws a grenade projectile that explodes after a fuse.
+/// Throws a Dynamite projectile that explodes after a fuse.
 /// </summary>
-[CreateAssetMenu(menuName = "StickWarfare/Actions/Grenade")]
-public class GrenadeAction : UnitAction
+[CreateAssetMenu(menuName = "StickWarfare/Actions/Dynamite")]
+public class DynamiteAction : UnitAction
 {
-    [SerializeField] private GrenadeProjectile grenadePrefab;
+    [SerializeField] private DynamiteProjectile DynamitePrefab;
     [SerializeField] private float minThrowForce = 8f;
     [SerializeField] private float maxThrowForce = 18f;
     [SerializeField] private float chargeSpeed = 1.5f;
@@ -38,7 +38,7 @@ public class GrenadeAction : UnitAction
     public float ChargeSpeed => chargeSpeed;
 
     /// <summary>
-    /// Sets the current throw force used on the next grenade.
+    /// Sets the current throw force used on the next Dynamite.
     /// </summary>
     public void SetThrowForce(float force)
     {
@@ -47,9 +47,9 @@ public class GrenadeAction : UnitAction
 
     protected override void Execute(Unit unit, TurnManager turnManager)
     {
-        if (grenadePrefab == null)
+        if (DynamitePrefab == null)
         {
-            Debug.LogWarning($"{unit.name} tried to use {ActionName} but no grenade prefab is assigned.");
+            Debug.LogWarning($"{unit.name} tried to use {ActionName} but no Dynamite prefab is assigned.");
             return;
         }
 
@@ -61,17 +61,17 @@ public class GrenadeAction : UnitAction
         }
 
         Vector3 spawnPos = unit.transform.TransformPoint(spawnOffset);
-        GrenadeProjectile grenade = Object.Instantiate(grenadePrefab, spawnPos, Quaternion.identity);
-        grenade.transform.rotation = Random.rotation;
-        grenade.Initialize(unit, ActionName, fuseSeconds, explosionRadius, damage, explosionForce, explosionUpForce, hitMask);
-        IgnoreThrowerCollision(grenade, unit);
+        DynamiteProjectile Dynamite = Object.Instantiate(DynamitePrefab, spawnPos, Quaternion.identity);
+        Dynamite.transform.rotation = Random.rotation;
+        Dynamite.Initialize(unit, ActionName, fuseSeconds, explosionRadius, damage, explosionForce, explosionUpForce, hitMask);
+        IgnoreThrowerCollision(Dynamite, unit);
 
-        Rigidbody body = grenade.GetComponent<Rigidbody>();
+        Rigidbody body = Dynamite.GetComponent<Rigidbody>();
         ThirdPersonCameraController cameraController = cam.GetComponent<ThirdPersonCameraController>();
         if (cameraController != null)
         {
-            int followId = cameraController.BeginGrenadeFollow(grenade.transform, unit.transform, body, cam.transform.forward);
-            grenade.SetCameraFollow(cameraController, followId);
+            int followId = cameraController.BeginDynamiteFollow(Dynamite.transform, unit.transform, body, cam.transform.forward);
+            Dynamite.SetCameraFollow(cameraController, followId);
         }
 
         if (body != null)
@@ -84,23 +84,23 @@ public class GrenadeAction : UnitAction
         currentThrowForce = -1f;
     }
 
-    private static void IgnoreThrowerCollision(GrenadeProjectile grenade, Unit unit)
+    private static void IgnoreThrowerCollision(DynamiteProjectile Dynamite, Unit unit)
     {
-        if (grenade == null || unit == null)
+        if (Dynamite == null || unit == null)
         {
             return;
         }
 
-        Collider[] grenadeColliders = grenade.GetComponentsInChildren<Collider>(true);
+        Collider[] DynamiteColliders = Dynamite.GetComponentsInChildren<Collider>(true);
         Collider[] unitColliders = unit.GetComponentsInChildren<Collider>(true);
-        if (grenadeColliders.Length == 0 || unitColliders.Length == 0)
+        if (DynamiteColliders.Length == 0 || unitColliders.Length == 0)
         {
             return;
         }
 
-        foreach (Collider grenadeCollider in grenadeColliders)
+        foreach (Collider DynamiteCollider in DynamiteColliders)
         {
-            if (grenadeCollider == null || grenadeCollider.isTrigger)
+            if (DynamiteCollider == null || DynamiteCollider.isTrigger)
             {
                 continue;
             }
@@ -112,7 +112,7 @@ public class GrenadeAction : UnitAction
                     continue;
                 }
 
-                Physics.IgnoreCollision(grenadeCollider, unitCollider, true);
+                Physics.IgnoreCollision(DynamiteCollider, unitCollider, true);
             }
         }
     }

@@ -16,11 +16,11 @@ public class ThirdPersonCameraController : MonoBehaviour
     [SerializeField] private float followSmoothTime = 0.08f;
     [SerializeField] private float turnChangeDuration = 1f;
 
-    [Header("Grenade Follow")]
-    [SerializeField] private float grenadeFollowDistance = 7f;
-    [SerializeField] private Vector3 grenadeTargetOffset = new Vector3(0f, 2.6f, 0f);
-    [SerializeField] private float grenadePitch = 30f;
-    [SerializeField] private float grenadeVelocityDeadZone = 0.25f;
+    [Header("Dynamite Follow")]
+    [SerializeField] private float DynamiteFollowDistance = 7f;
+    [SerializeField] private Vector3 DynamiteTargetOffset = new Vector3(0f, 2.6f, 0f);
+    [SerializeField] private float DynamitePitch = 30f;
+    [SerializeField] private float DynamiteVelocityDeadZone = 0.25f;
 
     [Header("Rotation")]
     [SerializeField] private float lookSensitivity = 120f;
@@ -239,9 +239,9 @@ public class ThirdPersonCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// Begins a temporary grenade follow from above and behind the travel direction.
+    /// Begins a temporary Dynamite follow from above and behind the travel direction.
     /// </summary>
-    public int BeginGrenadeFollow(Transform newTarget, Transform returnTarget, Rigidbody velocitySource, Vector3 initialDirection)
+    public int BeginDynamiteFollow(Transform newTarget, Transform returnTarget, Rigidbody velocitySource, Vector3 initialDirection)
     {
         if (newTarget == null)
         {
@@ -249,9 +249,9 @@ public class ThirdPersonCameraController : MonoBehaviour
         }
 
         overrideActive = true;
-        overrideTargetOffset = grenadeTargetOffset;
-        overrideFollowDistance = grenadeFollowDistance;
-        overridePitch = grenadePitch;
+        overrideTargetOffset = DynamiteTargetOffset;
+        overrideFollowDistance = DynamiteFollowDistance;
+        overridePitch = DynamitePitch;
         overrideUseVelocity = true;
         overrideVelocitySource = velocitySource;
         overrideLastDirection = initialDirection.sqrMagnitude > 0.001f ? initialDirection : Vector3.forward;
@@ -407,7 +407,7 @@ public class ThirdPersonCameraController : MonoBehaviour
         if (overrideUseVelocity && overrideVelocitySource != null)
         {
             Vector3 velocity = overrideVelocitySource.linearVelocity;
-            if (velocity.sqrMagnitude >= grenadeVelocityDeadZone * grenadeVelocityDeadZone)
+            if (velocity.sqrMagnitude >= DynamiteVelocityDeadZone * DynamiteVelocityDeadZone)
             {
                 overrideLastDirection = velocity;
             }

@@ -6,7 +6,7 @@ PhysicsMaterial:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Grenade
+  m_Name: Dynamite
   serializedVersion: 2
   m_DynamicFriction: 10
   m_StaticFriction: 10
