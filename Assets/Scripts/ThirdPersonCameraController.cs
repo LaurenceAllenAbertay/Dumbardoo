@@ -193,6 +193,9 @@ public class ThirdPersonCameraController : MonoBehaviour
             float t = Mathf.Clamp01(turnTransitionElapsed / turnChangeDuration);
             Vector3 position = Vector3.Lerp(turnTransitionStartPos, desiredPosition, t);
             Quaternion rot = Quaternion.Slerp(turnTransitionStartRot, rotation, t);
+            // Keep smoothedRotation in sync so the SmoothDamp path that takes
+            // over after the transition doesn't snap back to a stale pre-throw value.
+            smoothedRotation = rot;
             transform.SetPositionAndRotation(position, rot);
             return;
         }

@@ -21,12 +21,10 @@ public class ActionButtonsUI : MonoBehaviour
 
     [Header("Icons — child Image of each button")]
     [SerializeField] private Image[] actionIcons = new Image[3];
-
-    // ── Runtime state ─────────────────────────────────────────────────────────
-
+    
     private UnitActionController currentController;
 
-    // ── Unity lifecycle ───────────────────────────────────────────────────────
+    // Unity lifecycle
 
     private void Awake()
     {
@@ -76,7 +74,7 @@ public class ActionButtonsUI : MonoBehaviour
         }
     }
 
-    // ── Event handlers ────────────────────────────────────────────────────────
+    // Event handlers
 
     private void OnTurnStarted(Unit unit)
     {
@@ -105,7 +103,7 @@ public class ActionButtonsUI : MonoBehaviour
         currentController.SelectSlotByIndex(index);
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // Helpers
 
     /// <summary>
     /// Syncs each icon Image to the sprite on the current unit's equipped action.

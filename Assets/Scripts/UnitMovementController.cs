@@ -23,12 +23,35 @@ public class UnitMovementController : MonoBehaviour
     [SerializeField] private float groundCheckDistance = 0.2f;
     [SerializeField] private LayerMask groundMask = ~0;
 
+    [Tooltip("How long (seconds) the unit is still considered grounded after the " +
+             "ground check first misses. Prevents single-frame blips on uneven " +
+             "terrain from briefly clearing IsWalking in the Animator.")]
+    [SerializeField] private float groundedGracePeriod = 0.1f;
+
     private Unit unit;
     private Rigidbody body;
     private Vector2 moveInput;
     private bool isJumping;
     private bool wasGrounded;
     private bool loggedMissingRefs;
+    private float groundedGraceTimer;   // counts down after losing ground contact
+
+    // ── Cached state for animator polling ────────────────────────────────────
+
+    private bool cachedIsGrounded = true;
+    private bool cachedIsMoving;
+    private bool cachedIsJumping;
+    private bool cachedIsFalling;
+
+    // ── Events ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Fired the frame a jump is initiated, before velocity is applied.
+    /// Use this to set the Jump trigger on an Animator.
+    /// </summary>
+    public event System.Action JumpStarted;
+
+    // ── Public accessors ──────────────────────────────────────────────────────
 
     public InputActionReference JumpAction => jumpAction;
     public InputActionReference MoveAction => moveAction;
@@ -36,6 +59,24 @@ public class UnitMovementController : MonoBehaviour
     public float GroundCheckRadius => groundCheckRadius;
     public float GroundCheckDistance => groundCheckDistance;
     public LayerMask GroundMask => groundMask;
+
+    /// <summary>True when the unit is touching the ground (updated every FixedUpdate).</summary>
+    public bool IsGrounded => cachedIsGrounded;
+
+    /// <summary>True while the unit is mid-jump (set on jump, cleared on landing).</summary>
+    public bool IsJumping => cachedIsJumping;
+
+    /// <summary>
+    /// True when the unit is airborne but the airborne state was <em>not</em> caused by a
+    /// jump — i.e. the unit walked or was knocked off an edge.
+    /// </summary>
+    public bool IsFalling => cachedIsFalling;
+
+    /// <summary>
+    /// True when the unit has horizontal move input <em>and</em> it is their movement phase.
+    /// Safe to poll from Update / LateUpdate without triggering a physics query.
+    /// </summary>
+    public bool IsMoving => cachedIsMoving;
 
     private void Awake()
     {
@@ -107,6 +148,26 @@ public class UnitMovementController : MonoBehaviour
         }
 
         bool grounded = CheckGrounded();
+
+        // Maintain a grace-period timer so brief ground-check misses (e.g. on
+        // slightly uneven terrain) don't flicker IsWalking off for a frame.
+        if (grounded)
+        {
+            groundedGraceTimer = groundedGracePeriod;
+        }
+        else
+        {
+            groundedGraceTimer = Mathf.Max(0f, groundedGraceTimer - Time.fixedDeltaTime);
+        }
+
+        bool groundedBuffered = grounded || groundedGraceTimer > 0f;
+
+        cachedIsGrounded = grounded;
+        cachedIsJumping  = isJumping;
+        // Falling = truly airborne (grace expired) AND not from an intentional jump.
+        cachedIsFalling  = !groundedBuffered && !isJumping;
+        // IsMoving uses the buffered value so uneven-terrain blips don't clear it.
+        cachedIsMoving   = IsMyMovementPhase() && groundedBuffered && !isJumping && moveInput.sqrMagnitude > 0.01f;
 
         if (!IsMyMovementPhase())
         {
@@ -208,6 +269,20 @@ public class UnitMovementController : MonoBehaviour
         }
 
         isJumping = true;
+
+        // Immediately update the animator-facing caches so that the same
+        // frame's UnitAnimator.Update() reads correct values. Without this,
+        // cachedIsMoving stays true until the next FixedUpdate, causing
+        // IsWalking=true to compete with (and suppress) the Jump trigger.
+        cachedIsJumping = true;
+        cachedIsMoving  = false;
+        cachedIsFalling = false;
+        // Clear the grace timer — we don't want buffered-grounded state to
+        // interfere with the jump while isJumping is true.
+        groundedGraceTimer = 0f;
+
+        JumpStarted?.Invoke();
+
         float jumpVelocity = Mathf.Sqrt(2f * Mathf.Abs(Physics.gravity.y) * jumpHeight);
         Vector3 jumpDir;
         if (moveInput.sqrMagnitude > 0f)
@@ -220,6 +295,11 @@ public class UnitMovementController : MonoBehaviour
             jumpDir = cam != null ? cam.forward : transform.forward;
             jumpDir.y = 0f;
             jumpDir.Normalize();
+        }
+
+        if (jumpDir.sqrMagnitude > 0.0001f)
+        {
+            body.MoveRotation(Quaternion.LookRotation(jumpDir, Vector3.up));
         }
 
         Vector3 jumpForward = jumpDir * jumpForwardSpeed;

@@ -23,7 +23,7 @@ public class MatchSetupSpawner : MonoBehaviour
     // destroyed cleanly at the start of every new round.
     private readonly List<GameObject> teamRoots = new List<GameObject>();
 
-    // ── Unity lifecycle ───────────────────────────────────────────────────────
+    // Unity lifecycle
 
     private void Awake()
     {
@@ -76,7 +76,7 @@ public class MatchSetupSpawner : MonoBehaviour
         Unit.UnitDied -= OnUnitDied;
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // Public API
 
     /// <summary>
     /// Called by ShopManager after every team has finished shopping.
@@ -86,16 +86,8 @@ public class MatchSetupSpawner : MonoBehaviour
     /// </summary>
     public void RespawnForNewRound()
     {
-        // Save current actions for units still alive (dead units were already
-        // saved by OnUnitDied when they took their fatal hit).
         SyncAliveUnitsToRoster();
 
-        // Destroy every team root and all the unit children under it.
-        // DestroyImmediate is used here (instead of Destroy) so the old Unit
-        // GameObjects are fully removed before SpawnTeams and ApplyTeamUI run.
-        // Using Destroy (deferred) would leave the old units alive when
-        // RefreshUnits calls FindObjectsByType<Unit>, causing initialTotalMaxHealth
-        // to count both old and new units and making the health slider start at ~50%.
         foreach (GameObject root in teamRoots)
         {
             if (root != null)
@@ -119,7 +111,7 @@ public class MatchSetupSpawner : MonoBehaviour
         ResetTurns();
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // Private helpers
 
     private void EnsureDefaultSetup()
     {

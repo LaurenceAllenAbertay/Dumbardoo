@@ -48,7 +48,7 @@ public class ShopPanelUI : MonoBehaviour
 
     public int TeamId => teamId;
 
-    // ── Unity lifecycle ───────────────────────────────────────────────────────
+    // Unity lifecycle
 
     private void OnDisable()
     {
@@ -58,7 +58,7 @@ public class ShopPanelUI : MonoBehaviour
         }
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // Public API
 
     public void Open(TeamCurrencyManager manager, int team, string name)
     {
@@ -101,7 +101,7 @@ public class ShopPanelUI : MonoBehaviour
         }
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // Private helpers
 
     private void UpdateTitle()
     {

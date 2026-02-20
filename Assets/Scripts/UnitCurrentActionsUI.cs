@@ -9,7 +9,7 @@ public class UnitCurrentActionsUI : MonoBehaviour
     [SerializeField] private Button[] actionButtons = new Button[0];
     [SerializeField] private Image[] actionIconImages = new Image[0];
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // Runtime state
 
     private Unit unit;
     private UnitActionController actionController;
@@ -23,7 +23,7 @@ public class UnitCurrentActionsUI : MonoBehaviour
 
     public Unit Unit => unit;
 
-    // ── Initialisation ────────────────────────────────────────────────────────
+    // Initialisation
 
     /// <summary>
     /// Legacy initialisation using a live Unit reference.
@@ -58,7 +58,7 @@ public class UnitCurrentActionsUI : MonoBehaviour
         BindButtons();
     }
 
-    // ── Public API ────────────────────────────────────────────────────────────
+    // Public API
 
     public void Refresh()
     {
@@ -93,7 +93,7 @@ public class UnitCurrentActionsUI : MonoBehaviour
         }
     }
 
-    // ── Private helpers ───────────────────────────────────────────────────────
+    // Private helpers
 
     private void BindButtons()
     {

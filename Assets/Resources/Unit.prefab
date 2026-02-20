@@ -100,6 +100,8 @@ GameObject:
   - component: {fileID: 4279203331079284692}
   - component: {fileID: 3486336890203979367}
   - component: {fileID: 2706516319134938635}
+  - component: {fileID: 4576609322623340055}
+  - component: {fileID: 3841793045673887064}
   m_Layer: 6
   m_Name: Unit
   m_TagString: Untagged
@@ -213,11 +215,12 @@ MonoBehaviour:
   moveSpeed: 4.5
   jumpHeight: 1.5
   jumpForwardSpeed: 4
-  groundCheckRadius: 0.5
-  groundCheckDistance: 0.6
+  groundCheckRadius: 0.4
+  groundCheckDistance: 0.8
   groundMask:
     serializedVersion: 2
     m_Bits: 128
+  groundedGracePeriod: 0.1
 --- !u!114 &2706516319134938635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240,6 +243,43 @@ MonoBehaviour:
   slot3: {fileID: 11400000, guid: 52a833450585df049b18795c48df36f2, type: 2}
   showPunchGizmo: 1
   punchGizmoColor: {r: 1, g: 0.4, b: 0.2, a: 0.35}
+--- !u!114 &4576609322623340055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137084705260282136}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 452507302a4712b4888146728360152a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  animator: {fileID: 3841793045673887064}
+  movementController: {fileID: 3486336890203979367}
+  actionController: {fileID: 2706516319134938635}
+--- !u!95 &3841793045673887064
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1137084705260282136}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: d1fe1148e4d9ab94dba242ad9bba7508, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1851496895757634343
 GameObject:
   m_ObjectHideFlags: 0
@@ -468,7 +508,7 @@ Transform:
   m_GameObject: {fileID: 2673966803870081048}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.1789, z: -0}
+  m_LocalPosition: {x: 0, y: 0.1789, z: 0}
   m_LocalScale: {x: 0.1, y: 0.5, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -815,13 +855,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5921715717440882232}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: -0.38268343, w: 0.92387956}
-  m_LocalPosition: {x: -0.3, y: 0.25, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0.38268343, w: 0.92387956}
+  m_LocalPosition: {x: -0.3, y: 0.2500001, z: 0}
   m_LocalScale: {x: 0.1, y: 0.4, z: 0.1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1462637725094248423}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -45}
+  m_LocalEulerAnglesHint: {x: 0, y: -25, z: -45}
 --- !u!33 &6046320853778205707
 MeshFilter:
   m_ObjectHideFlags: 0

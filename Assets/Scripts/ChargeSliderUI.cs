@@ -18,11 +18,11 @@ public class ChargeSliderUI : MonoBehaviour
     [Tooltip("Root object to show/hide. If empty, the Slider's own GameObject is used.")]
     [SerializeField] private GameObject sliderRoot;
 
-    // ── Runtime state ─────────────────────────────────────────────────────────
+    // Runtime state
 
     private UnitActionController currentController;
 
-    // ── Unity lifecycle ───────────────────────────────────────────────────────
+    // Unity lifecycle
 
     private void Awake()
     {
@@ -76,7 +76,7 @@ public class ChargeSliderUI : MonoBehaviour
         }
     }
 
-    // ── Event handlers ────────────────────────────────────────────────────────
+    // Event handlers
 
     private void OnTurnStarted(Unit unit)
     {
@@ -93,7 +93,7 @@ public class ChargeSliderUI : MonoBehaviour
         }
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    // Helpers
 
     private void SetVisible(bool visible)
     {

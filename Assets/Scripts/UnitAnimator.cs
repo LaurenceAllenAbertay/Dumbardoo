@@ -1,0 +1,243 @@
+using UnityEngine;
+
+/// <summary>
+/// Drives the unit's Animator based on movement state and action input.
+///
+/// ── Animator parameter contract ──────────────────────────────────────────────
+///
+///  bool    IsWalking    — unit is moving on the ground during Movement phase
+///  bool    IsFalling    — unit is airborne but NOT from a jump (walked/knocked off an edge)
+///  bool    IsAiming     — an action is selected; loops the aim animation
+///  bool    IsCharging   — dynamite charge is held (sub-state within DynamiteAim)
+///  int     ActionIndex  — identifies which action is selected / fired:
+///                           0  None
+///                           1  Punch
+///                           2  Gun
+///                           3  Dynamite
+///                           4  Jetpack
+///                           5  Explode
+///  trigger Jump         — set once the moment a jump is initiated;
+///                         transitions to the jump animation immediately
+///  trigger Fire         — fired once when the action is executed;
+///                         transitions aim → fire one-shot → idle/next state
+///
+/// ── Suggested Animator layout ────────────────────────────────────────────────
+///  Any State → Jump        (Jump trigger)          — one-shot, exit by time
+///  Any State → Walk        (IsWalking  == true)    — !! Has Exit Time must be OFF !!
+///  Any State → Fall        (IsFalling  == true)    — loops until grounded
+///  Any State → PunchAim    (IsAiming && ActionIndex == 1)
+///  Any State → GunAim      (IsAiming && ActionIndex == 2)
+///  Any State → DynamiteAim (IsAiming && ActionIndex == 3)
+///  Any State → JetpackAim  (IsAiming && ActionIndex == 4)
+///  Any State → ExplodeAim  (IsAiming && ActionIndex == 5)
+///  PunchAim    → PunchFire    (Fire trigger)
+///  GunAim      → GunFire      (Fire trigger)
+///  DynamiteAim → DynamiteFire (Fire trigger)
+///  JetpackAim  → JetpackFire  (Fire trigger)
+///  ExplodeAim  → ExplodeFire  (Fire trigger)
+///  *Fire → Idle  (Exit Time, once the animation completes)
+///  Jump  → Idle  (exit time once animation completes)
+///  Fall  → Idle  (IsFalling == false)
+///  Walk  → Idle  (IsWalking == false)    — !! Has Exit Time must be OFF !!
+///  Idle  → Walk  (IsWalking == true)     — !! Has Exit Time must be OFF !!
+/// </summary>
+[RequireComponent(typeof(Unit))]
+public class UnitAnimator : MonoBehaviour
+{
+    // ── Action index constants ─────────────────────────────────────────────────
+    public const int ActionNone     = 0;
+    public const int ActionPunch    = 1;
+    public const int ActionGun      = 2;
+    public const int ActionDynamite = 3;
+    public const int ActionJetpack  = 4;
+    public const int ActionExplode  = 5;
+
+    // ── Animator parameter hashes ──────────────────────────────────────────────
+    private static readonly int IsWalkingHash    = Animator.StringToHash("IsWalking");
+    private static readonly int IsFallingHash    = Animator.StringToHash("IsFalling");
+    private static readonly int IsJumpingHash    = Animator.StringToHash("IsJumping");
+    private static readonly int IsAimingHash     = Animator.StringToHash("IsAiming");
+    private static readonly int IsChargingHash   = Animator.StringToHash("IsCharging");
+    private static readonly int ActionIndexHash  = Animator.StringToHash("ActionIndex");
+    private static readonly int JumpHash         = Animator.StringToHash("Jump");
+    private static readonly int FireHash         = Animator.StringToHash("Fire");
+
+    // ── Inspector ──────────────────────────────────────────────────────────────
+    [Header("References")]
+    [Tooltip("The Animator to drive. If left empty the first Animator found on " +
+             "this GameObject or any child is used.")]
+    [SerializeField] private Animator animator;
+
+    [Tooltip("Optional: assign directly. If empty the sibling components are " +
+             "located automatically in Awake.")]
+    [SerializeField] private UnitMovementController movementController;
+    [SerializeField] private UnitActionController actionController;
+
+    // ── Runtime ────────────────────────────────────────────────────────────────
+    private Unit unit;
+
+    // ── Unity lifecycle ────────────────────────────────────────────────────────
+
+    private void Awake()
+    {
+        unit = GetComponent<Unit>();
+
+        if (animator == null)
+        {
+            animator = GetComponentInChildren<Animator>(true);
+        }
+
+        if (movementController == null)
+        {
+            movementController = GetComponent<UnitMovementController>();
+        }
+
+        if (actionController == null)
+        {
+            actionController = GetComponent<UnitActionController>();
+        }
+
+        if (animator == null)
+        {
+            Debug.LogWarning($"{name} UnitAnimator: No Animator found. " +
+                             "Assign one in the inspector or add it to a child GameObject.");
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (actionController != null)
+        {
+            actionController.ActionSelectionChanged += OnActionSelectionChanged;
+            actionController.ActionFired            += OnActionFired;
+        }
+
+        if (movementController != null)
+        {
+            movementController.JumpStarted += OnJumpStarted;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (actionController != null)
+        {
+            actionController.ActionSelectionChanged -= OnActionSelectionChanged;
+            actionController.ActionFired            -= OnActionFired;
+        }
+
+        if (movementController != null)
+        {
+            movementController.JumpStarted -= OnJumpStarted;
+        }
+    }
+
+    private void Update()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        UpdateLocomotion();
+        UpdateCharging();
+    }
+
+    // ── Movement ───────────────────────────────────────────────────────────────
+
+    private void UpdateLocomotion()
+    {
+        bool walking = movementController != null && movementController.IsMoving;
+        bool falling = movementController != null && movementController.IsFalling;
+        bool jumping = movementController != null && movementController.IsJumping; 
+
+        animator.SetBool(IsWalkingHash, walking);
+        animator.SetBool(IsFallingHash, falling);
+        animator.SetBool(IsJumpingHash, jumping); 
+    }
+
+    // ── Jump ───────────────────────────────────────────────────────────────────
+
+    private void OnJumpStarted()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        animator.SetTrigger(JumpHash);
+    }
+
+    // ── Charging ───────────────────────────────────────────────────────────────
+
+    private void UpdateCharging()
+    {
+        bool charging = actionController != null && actionController.IsCharging;
+        animator.SetBool(IsChargingHash, charging);
+    }
+
+    // ── Action selection ───────────────────────────────────────────────────────
+
+    private void OnActionSelectionChanged(UnitAction action)
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (action == null)
+        {
+            // Deselected — leave aim state.
+            animator.SetBool(IsAimingHash,    false);
+            animator.SetInteger(ActionIndexHash, ActionNone);
+        }
+        else
+        {
+            animator.SetInteger(ActionIndexHash, GetActionIndex(action));
+            animator.SetBool(IsAimingHash, true);
+        }
+    }
+
+    // ── Action fire ────────────────────────────────────────────────────────────
+
+    private void OnActionFired(UnitAction action)
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        // Make sure ActionIndex reflects the fired action in case the trigger is
+        // evaluated before the next frame's selection-changed callback settles.
+        animator.SetInteger(ActionIndexHash, GetActionIndex(action));
+
+        // Aiming ends the moment the action fires.
+        animator.SetBool(IsAimingHash, false);
+
+        // Trigger the one-shot fire animation.
+        animator.SetTrigger(FireHash);
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Maps a <see cref="UnitAction"/> instance to the integer constant used
+    /// by the Animator's <c>ActionIndex</c> parameter.
+    /// Extend this method if you add new action types.
+    /// </summary>
+    private static int GetActionIndex(UnitAction action)
+    {
+        if (action == null)        return ActionNone;
+        if (action is PunchAction)   return ActionPunch;
+        if (action is GunAction)     return ActionGun;
+        if (action is DynamiteAction) return ActionDynamite;
+        if (action is JetpackAction) return ActionJetpack;
+        if (action is ExplodeAction) return ActionExplode;
+
+        // Unknown / future action type — treat as generic (reuse Punch slot or
+        // add a dedicated index for it).
+        Debug.LogWarning($"UnitAnimator: Unrecognised action type '{action.GetType().Name}'. " +
+                         "Defaulting to ActionIndex 0. Add a case to GetActionIndex().");
+        return ActionNone;
+    }
+}

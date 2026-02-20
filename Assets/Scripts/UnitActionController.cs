@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,6 +28,24 @@ public class UnitActionController : MonoBehaviour
     private float chargeTime;
     private float currentChargeForce;
     private bool turnEventsBound;
+
+    // ── Animator events ───────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Fired when the player selects (or re-selects to cancel) an action.
+    /// The argument is the newly selected action, or <c>null</c> when deselected.
+    /// </summary>
+    public event Action<UnitAction> ActionSelectionChanged;
+
+    /// <summary>
+    /// Fired the moment an action is executed (TryExecute succeeds).
+    /// </summary>
+    public event Action<UnitAction> ActionFired;
+
+    // ── Public state ──────────────────────────────────────────────────────────
+
+    /// <summary>The currently highlighted action, or null when nothing is selected.</summary>
+    public UnitAction SelectedAction => selectedAction;
 
     /// <summary>True while the player is holding the confirm button to charge a Dynamite throw.</summary>
     public bool IsCharging => isCharging;
@@ -177,6 +196,7 @@ public class UnitActionController : MonoBehaviour
             Debug.Log($"{unit.name} canceled {action.ActionName}.");
             selectedAction = null;
             isCharging = false;
+            ActionSelectionChanged?.Invoke(null);
             return;
         }
 
@@ -186,6 +206,7 @@ public class UnitActionController : MonoBehaviour
         }
 
         selectedAction = action;
+        ActionSelectionChanged?.Invoke(selectedAction);
         Debug.Log($"{unit.name} selected {action.ActionName}.");
     }
 
@@ -217,17 +238,26 @@ public class UnitActionController : MonoBehaviour
     {
         if (phase == TurnManager.TurnPhase.Action && turnManager != null && turnManager.CurrentUnit == unit)
         {
+            // Clear selection at the start of the action phase without raising the
+            // ActionSelectionChanged event — we don't want to trigger an "aim" animation
+            // before the player has chosen anything.
             selectedAction = null;
         }
     }
 
     private void ResetActionState()
     {
+        bool hadSelection = selectedAction != null;
         selectedAction = null;
         actionUsed = false;
         isCharging = false;
         chargeTime = 0f;
         currentChargeForce = 0f;
+
+        if (hadSelection)
+        {
+            ActionSelectionChanged?.Invoke(null);
+        }
     }
 
     private void OnDrawGizmos()
@@ -332,9 +362,12 @@ public class UnitActionController : MonoBehaviour
 
     private void ExecuteSelected()
     {
+        UnitAction firedAction = selectedAction;
         if (selectedAction.TryExecute(unit, turnManager))
         {
             actionUsed = true;
+            ActionFired?.Invoke(firedAction);
+
             if (turnManager != null && selectedAction.EndsActionImmediately)
             {
                 turnManager.NotifyActionEnded(unit);
@@ -384,6 +417,7 @@ public class UnitActionController : MonoBehaviour
         if (slot == selectedAction)
         {
             selectedAction = null;
+            ActionSelectionChanged?.Invoke(null);
         }
 
         slot = action;

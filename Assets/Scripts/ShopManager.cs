@@ -16,7 +16,7 @@ public class ShopManager : MonoBehaviour
     private int nextTeamIndex;
     private bool shopActive;
 
-    // ── Unity lifecycle ───────────────────────────────────────────────────────
+    // Unity lifecycle
 
     private void OnEnable()
     {
@@ -45,7 +45,7 @@ public class ShopManager : MonoBehaviour
         }
     }
 
-    // ── Internal helpers ──────────────────────────────────────────────────────
+    // Internal helpers
 
     private void EnsureReferences()
     {

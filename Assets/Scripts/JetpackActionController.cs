@@ -88,10 +88,6 @@ public class JetpackActionController : MonoBehaviour
 
         if (!unit.IsAlive)
         {
-            // Notify the turn manager so the phase transitions to TurnEnd.
-            // DeathSequence will call EndCurrentTurn after its delay, but
-            // driving the phase here ensures nothing else relies on the
-            // Action phase lingering while the unit is already dead.
             StopAction(true);
             return;
         }
