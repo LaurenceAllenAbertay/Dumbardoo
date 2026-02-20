@@ -11,6 +11,7 @@ public class DynamiteAction : UnitAction
     [SerializeField] private float maxThrowForce = 18f;
     [SerializeField] private float chargeSpeed = 1.5f;
     [SerializeField] private Vector3 spawnOffset = new Vector3(0f, 1.2f, 0.6f);
+    [SerializeField] private float maxSpinSpeed = 12f;
 
     [Header("Explosion")]
     [SerializeField] private float fuseSeconds = 3f;
@@ -79,6 +80,7 @@ public class DynamiteAction : UnitAction
             Vector3 throwDir = cam.transform.forward.normalized;
             float force = currentThrowForce > 0f ? currentThrowForce : maxThrowForce;
             body.linearVelocity = throwDir * force;
+            body.angularVelocity = Random.insideUnitSphere * maxSpinSpeed;
         }
 
         currentThrowForce = -1f;

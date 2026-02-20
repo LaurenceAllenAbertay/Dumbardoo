@@ -14,6 +14,7 @@ public class ThirdPersonCameraController : MonoBehaviour
     [SerializeField] private Vector3 targetOffset = new Vector3(0f, 1.6f, 0f);
     [SerializeField] private float followDistance = 4.5f;
     [SerializeField] private float followSmoothTime = 0.08f;
+    [SerializeField] private float rotationSmoothSpeed = 12f;
     [SerializeField] private float turnChangeDuration = 1f;
 
     [Header("Dynamite Follow")]
@@ -21,6 +22,9 @@ public class ThirdPersonCameraController : MonoBehaviour
     [SerializeField] private Vector3 DynamiteTargetOffset = new Vector3(0f, 2.6f, 0f);
     [SerializeField] private float DynamitePitch = 30f;
     [SerializeField] private float DynamiteVelocityDeadZone = 0.25f;
+    [Tooltip("How quickly the camera yaw catches up to the dynamite's travel direction. " +
+             "Higher = snappier, lower = more cinematic lag.")]
+    [SerializeField] private float dynamiteDirectionSmoothTime = 0.25f;
 
     [Header("Rotation")]
     [SerializeField] private float lookSensitivity = 120f;
@@ -53,12 +57,15 @@ public class ThirdPersonCameraController : MonoBehaviour
     private bool overrideUseVelocity;
     private Rigidbody overrideVelocitySource;
     private Vector3 overrideLastDirection;
+    private Vector3 overrideSmoothedDirection;
+    private Vector3 overrideDirVelocity;
     private float overrideYawOffset;
     private float overridePitchOffset;
     private bool turnTransitionNotified;
     private bool introPlaying;
     private float introElapsed;
     private Unit pendingIntroUnit;
+    private Quaternion smoothedRotation = Quaternion.identity;
 
     [Header("Collision")]
     [SerializeField] private float collisionRadius = 0.25f;
@@ -116,6 +123,8 @@ public class ThirdPersonCameraController : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
+
+        smoothedRotation = transform.rotation;
     }
 
     private void LateUpdate()
@@ -197,7 +206,9 @@ public class ThirdPersonCameraController : MonoBehaviour
         }
 
         Vector3 smoothedPosition = Vector3.SmoothDamp(transform.position, desiredPosition, ref followVelocity, followSmoothTime);
-        transform.SetPositionAndRotation(smoothedPosition, rotation);
+        float rotationT = 1f - Mathf.Exp(-rotationSmoothSpeed * dt);
+        smoothedRotation = Quaternion.Slerp(smoothedRotation, rotation, rotationT);
+        transform.SetPositionAndRotation(smoothedPosition, smoothedRotation);
     }
 
     private void HandleTurnStarted(Unit unit)
@@ -255,6 +266,8 @@ public class ThirdPersonCameraController : MonoBehaviour
         overrideUseVelocity = true;
         overrideVelocitySource = velocitySource;
         overrideLastDirection = initialDirection.sqrMagnitude > 0.001f ? initialDirection : Vector3.forward;
+        overrideSmoothedDirection = overrideLastDirection;
+        overrideDirVelocity = Vector3.zero;
         overrideYawOffset = 0f;
         overridePitchOffset = 0f;
 
@@ -319,6 +332,7 @@ public class ThirdPersonCameraController : MonoBehaviour
             Vector3 forward = target.forward;
             yaw = Mathf.Atan2(forward.x, forward.z) * Mathf.Rad2Deg;
             pitch = 10f;
+            smoothedRotation = Quaternion.Euler(pitch, yaw, 0f);
         }
 
         turnTransitionElapsed = 0f;
@@ -418,7 +432,15 @@ public class ThirdPersonCameraController : MonoBehaviour
             overrideLastDirection = target != null ? target.forward : Vector3.forward;
         }
 
-        return overrideLastDirection;
+        // Smooth the direction so rapid bounces or direction flips don't snap the camera.
+        float smoothTime = Mathf.Max(0.01f, dynamiteDirectionSmoothTime);
+        overrideSmoothedDirection = Vector3.SmoothDamp(
+            overrideSmoothedDirection,
+            overrideLastDirection,
+            ref overrideDirVelocity,
+            smoothTime);
+
+        return overrideSmoothedDirection;
     }
 
     private void ClearOverrideSettings()
@@ -430,6 +452,8 @@ public class ThirdPersonCameraController : MonoBehaviour
         overrideFollowDistance = followDistance;
         overridePitch = 0f;
         overrideLastDirection = Vector3.forward;
+        overrideSmoothedDirection = Vector3.forward;
+        overrideDirVelocity = Vector3.zero;
         overrideYawOffset = 0f;
         overridePitchOffset = 0f;
     }

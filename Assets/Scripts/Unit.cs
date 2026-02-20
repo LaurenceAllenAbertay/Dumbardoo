@@ -13,6 +13,11 @@ public class Unit : MonoBehaviour
     [SerializeField] private GameObject deathVfxPrefab;
     [SerializeField] private float deathEndDelay = 2f;
 
+    [Tooltip("The visual model root to hide immediately on death. " +
+             "If left empty, all Renderer components on this GameObject and its " +
+             "children are disabled instead.")]
+    [SerializeField] private GameObject modelRoot;
+
     public int TeamId => teamId;
     public bool IsAlive => isAlive;
     public float MoveRange => moveRange;
@@ -43,7 +48,6 @@ public class Unit : MonoBehaviour
     public static event Action<Unit> UnitDied;
 
     private bool deathSequenceStarted;
-    private float deathRandomTorqueImpulse = 1f;
     private TurnManager turnManager;
 
     private void Awake()
@@ -151,26 +155,51 @@ public class Unit : MonoBehaviour
 
         deathSequenceStarted = true;
 
-        if (TryGetComponent(out Rigidbody body))
+        // Spawn VFX immediately so it plays right as the unit dies.
+        if (deathVfxPrefab != null)
         {
-            body.constraints &= ~RigidbodyConstraints.FreezeRotationX;
-            body.constraints &= ~RigidbodyConstraints.FreezeRotationZ;
+            GameObject vfx = Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
 
-            if (deathRandomTorqueImpulse > 0f)
+            // Inherit the unit's current velocity so the VFX parts continue
+            // moving in the same direction the unit was travelling at death.
+            Vector3 deathVelocity = TryGetComponent(out Rigidbody unitBody)
+                ? unitBody.linearVelocity
+                : Vector3.zero;
+
+            foreach (Rigidbody part in vfx.GetComponentsInChildren<Rigidbody>())
             {
-                float x = UnityEngine.Random.Range(-1f, 1f);
-                float z = UnityEngine.Random.Range(-1f, 1f);
-                Vector3 torque = new Vector3(x, 0f, z);
-                if (torque.sqrMagnitude > 0.0001f)
-                {
-                    torque.Normalize();
-                }
-
-                body.AddTorque(torque * deathRandomTorqueImpulse, ForceMode.Impulse);
+                Vector3 randomBoost = new Vector3(
+                    UnityEngine.Random.Range(-1f, 1f),
+                    UnityEngine.Random.Range(-1f, 1f),
+                    UnityEngine.Random.Range(-1f, 1f));
+                part.linearVelocity += deathVelocity + randomBoost;
             }
         }
 
+        // Hide the visual model immediately.
+        HideModel();
+
         StartCoroutine(DeathSequence());
+    }
+
+    /// <summary>
+    /// Hides the unit's visual representation immediately on death.
+    /// Uses <see cref="modelRoot"/> if assigned; otherwise disables every
+    /// Renderer found on this GameObject and its children.
+    /// </summary>
+    private void HideModel()
+    {
+        if (modelRoot != null)
+        {
+            modelRoot.SetActive(false);
+        }
+        else
+        {
+            foreach (Renderer r in GetComponentsInChildren<Renderer>(true))
+            {
+                r.enabled = false;
+            }
+        }
     }
 
     private IEnumerator DeathSequence()
@@ -183,11 +212,6 @@ public class Unit : MonoBehaviour
         if (turnManager != null && turnManager.CurrentUnit == this)
         {
             turnManager.EndCurrentTurn();
-        }
-
-        if (deathVfxPrefab != null)
-        {
-            Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
         }
 
         Destroy(gameObject);

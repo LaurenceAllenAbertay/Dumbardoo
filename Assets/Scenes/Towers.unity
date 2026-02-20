@@ -1087,8 +1087,6 @@ MonoBehaviour:
   - {fileID: 689891003}
   - {fileID: 2057771751}
   - {fileID: 1223448921}
-  team1Material: {fileID: 2100000, guid: a3fe0ebe282cda04cbf199a7a81c0b5a, type: 2}
-  team2Material: {fileID: 2100000, guid: d704ea68625b01c42b541e277e8c82aa, type: 2}
   teamUIs:
   - {fileID: 975061339}
   - {fileID: 216844270}
@@ -1793,12 +1791,13 @@ MonoBehaviour:
   lookAction: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   targetOffset: {x: 0, y: 1.6, z: 0}
   followDistance: 6
-  followSmoothTime: 0.01
+  followSmoothTime: 0.05
+  rotationSmoothSpeed: 20
   turnChangeDuration: 1
-  grenadeFollowDistance: 7
-  grenadeTargetOffset: {x: 0, y: 2.6, z: 0}
-  grenadePitch: 30
-  grenadeVelocityDeadZone: 0.25
+  DynamiteFollowDistance: 7
+  DynamiteTargetOffset: {x: 0, y: 2.6, z: 0}
+  DynamitePitch: 30
+  DynamiteVelocityDeadZone: 0.25
   lookSensitivity: 80
   minPitch: -50
   maxPitch: 70
@@ -1812,7 +1811,7 @@ MonoBehaviour:
   collisionBuffer: 0.1
   collisionMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 183
 --- !u!1 &340953822
 GameObject:
   m_ObjectHideFlags: 0
