@@ -13,6 +13,7 @@ public class UnitMovementController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 4.5f;
+    [SerializeField] private float rotationSpeed = 720f;
 
     [Header("Jump")]
     [SerializeField] private float jumpHeight = 1f;
@@ -32,6 +33,7 @@ public class UnitMovementController : MonoBehaviour
     private Rigidbody body;
     private Vector2 moveInput;
     private bool isJumping;
+    private Vector3 jumpDirection;
     private bool wasGrounded;
     private bool loggedMissingRefs;
     private float groundedGraceTimer;   // counts down after losing ground contact
@@ -218,7 +220,15 @@ public class UnitMovementController : MonoBehaviour
 
         if (allowMove && direction.sqrMagnitude > 0f)
         {
-            body.MoveRotation(Quaternion.LookRotation(direction, Vector3.up));
+            Quaternion targetRot = Quaternion.LookRotation(direction, Vector3.up);
+            Quaternion smoothedRot = Quaternion.RotateTowards(body.rotation, targetRot, rotationSpeed * Time.fixedDeltaTime);
+            body.MoveRotation(smoothedRot);
+        }
+        else if (isJumping && jumpDirection.sqrMagnitude > 0.0001f)
+        {
+            Quaternion targetRot = Quaternion.LookRotation(jumpDirection, Vector3.up);
+            Quaternion smoothedRot = Quaternion.RotateTowards(body.rotation, targetRot, rotationSpeed * Time.fixedDeltaTime);
+            body.MoveRotation(smoothedRot);
         }
     }
 
@@ -299,7 +309,7 @@ public class UnitMovementController : MonoBehaviour
 
         if (jumpDir.sqrMagnitude > 0.0001f)
         {
-            body.MoveRotation(Quaternion.LookRotation(jumpDir, Vector3.up));
+            jumpDirection = jumpDir;
         }
 
         Vector3 jumpForward = jumpDir * jumpForwardSpeed;
