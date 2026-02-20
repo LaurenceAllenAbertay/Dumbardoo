@@ -3453,7 +3453,7 @@ MonoBehaviour:
   - {fileID: 656157730}
   unitListRoot: {fileID: 937492590}
   unitCurrentActionsPrefab: {fileID: 7360261004504915629, guid: dab3175d2086c8f42bc277a8406c3a47, type: 3}
-  doneButton: {fileID: 0}
+  doneButton: {fileID: 2021086899}
   shopTitleSuffix: ' Shop'
   defaultInfoText: Select an action to purchase.
   selectReplaceText: Select an action to replace!
