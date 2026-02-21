@@ -2,10 +2,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Drives the three in-game action buttons.
+/// Drives the three in-game action buttons plus the ultimate button.
 /// • Shows them only during the Action phase.
 /// • Syncs each button's child Image to the current unit's equipped action icon.
-/// • Clicking a button is equivalent to pressing the Action1 / Action2 / Action3 input.
+/// • The ultimate button is only interactable when the current unit's team has 1000 dumb points.
 /// </summary>
 public class ActionButtonsUI : MonoBehaviour
 {
@@ -21,8 +21,14 @@ public class ActionButtonsUI : MonoBehaviour
 
     [Header("Icons — child Image of each button")]
     [SerializeField] private Image[] actionIcons = new Image[3];
-    
+
+    [Header("Ultimate Button")]
+    [SerializeField] private Button ultimateButton;
+    [SerializeField] private Image ultimateIcon;
+
     private UnitActionController currentController;
+    private TeamCurrencyManager currencyManager;
+    private int currentTeamId = -1;
 
     // Unity lifecycle
 
@@ -32,6 +38,8 @@ public class ActionButtonsUI : MonoBehaviour
         {
             turnManager = FindFirstObjectByType<TurnManager>();
         }
+
+        currencyManager = FindFirstObjectByType<TeamCurrencyManager>();
     }
 
     private void OnEnable()
@@ -40,6 +48,11 @@ public class ActionButtonsUI : MonoBehaviour
         {
             turnManager.TurnStarted += OnTurnStarted;
             turnManager.PhaseChanged += OnPhaseChanged;
+        }
+
+        if (currencyManager != null)
+        {
+            currencyManager.DumbPointsChanged += OnDumbPointsChanged;
         }
 
         for (int i = 0; i < actionButtons.Length; i++)
@@ -53,7 +66,11 @@ public class ActionButtonsUI : MonoBehaviour
             actionButtons[i].onClick.AddListener(() => OnButtonClicked(capturedIndex));
         }
 
-        // Start hidden; OnPhaseChanged will reveal them when appropriate.
+        if (ultimateButton != null)
+        {
+            ultimateButton.onClick.AddListener(OnUltimateButtonClicked);
+        }
+
         SetVisible(false);
     }
 
@@ -65,12 +82,22 @@ public class ActionButtonsUI : MonoBehaviour
             turnManager.PhaseChanged -= OnPhaseChanged;
         }
 
+        if (currencyManager != null)
+        {
+            currencyManager.DumbPointsChanged -= OnDumbPointsChanged;
+        }
+
         foreach (Button btn in actionButtons)
         {
             if (btn != null)
             {
                 btn.onClick.RemoveAllListeners();
             }
+        }
+
+        if (ultimateButton != null)
+        {
+            ultimateButton.onClick.RemoveAllListeners();
         }
     }
 
@@ -79,7 +106,7 @@ public class ActionButtonsUI : MonoBehaviour
     private void OnTurnStarted(Unit unit)
     {
         currentController = unit != null ? unit.GetComponent<UnitActionController>() : null;
-        // Icons will be refreshed when the phase switches to Action.
+        currentTeamId = unit != null ? unit.TeamId : -1;
     }
 
     private void OnPhaseChanged(TurnManager.TurnPhase phase)
@@ -90,6 +117,7 @@ public class ActionButtonsUI : MonoBehaviour
         if (isActionPhase)
         {
             RefreshIcons();
+            RefreshUltimateButton();
         }
     }
 
@@ -103,11 +131,26 @@ public class ActionButtonsUI : MonoBehaviour
         currentController.SelectSlotByIndex(index);
     }
 
+    private void OnUltimateButtonClicked()
+    {
+        if (currentController == null)
+        {
+            return;
+        }
+
+        currentController.SelectUltimate();
+    }
+
+    private void OnDumbPointsChanged(int teamId, int newPoints)
+    {
+        if (teamId == currentTeamId)
+        {
+            RefreshUltimateButton();
+        }
+    }
+
     // Helpers
 
-    /// <summary>
-    /// Syncs each icon Image to the sprite on the current unit's equipped action.
-    /// </summary>
     private void RefreshIcons()
     {
         for (int i = 0; i < actionIcons.Length; i++)
@@ -122,11 +165,40 @@ public class ActionButtonsUI : MonoBehaviour
             actionIcons[i].sprite = icon;
             actionIcons[i].enabled = icon != null;
         }
+
+        RefreshUltimateIcon();
     }
 
-    /// <summary>
-    /// Shows or hides the button root without destroying it.
-    /// </summary>
+    private void RefreshUltimateIcon()
+    {
+        if (ultimateIcon == null || currentTeamId < 0 || currentTeamId >= MatchSetupData.Teams.Count)
+        {
+            return;
+        }
+
+        UnitAction ultimate = MatchSetupData.Teams[currentTeamId].UltimateAction;
+        Sprite icon = ultimate != null ? ultimate.Icon : null;
+        ultimateIcon.sprite = icon;
+        ultimateIcon.enabled = icon != null;
+    }
+
+    private void RefreshUltimateButton()
+    {
+        if (ultimateButton == null)
+        {
+            return;
+        }
+
+        bool ready = currencyManager != null
+            && currentTeamId >= 0
+            && currencyManager.GetDumbPoints(currentTeamId) >= 1000
+            && currentTeamId < MatchSetupData.Teams.Count
+            && MatchSetupData.Teams[currentTeamId].UltimateAction != null;
+
+        ultimateButton.interactable = ready;
+        RefreshUltimateIcon();
+    }
+
     private void SetVisible(bool visible)
     {
         GameObject root = buttonsRoot != null ? buttonsRoot : gameObject;

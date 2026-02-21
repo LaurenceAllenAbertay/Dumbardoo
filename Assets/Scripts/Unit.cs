@@ -121,6 +121,16 @@ public class Unit : MonoBehaviour
         ApplyDamage(amount, null, null);
     }
 
+    public void Heal(int amount)
+    {
+        if (!isAlive || amount <= 0)
+        {
+            return;
+        }
+
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+    }
+
     public void ApplyDamage(int amount, Unit source, string actionName)
     {
         if (!isAlive || amount <= 0)

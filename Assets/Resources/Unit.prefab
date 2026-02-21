@@ -359,6 +359,7 @@ MonoBehaviour:
   action1: {fileID: 3971001460759373254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   action2: {fileID: 3019239646227655456, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   action3: {fileID: -4302872500677575893, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  actionUltimate: {fileID: -8311286885044100296, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   confirmAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   slot1: {fileID: 11400000, guid: bb0be70c7005f5f41976be58cf6b89a9, type: 2}
   slot2: {fileID: 11400000, guid: c96945ca00ba33d49b76237cd8fe9bcf, type: 2}

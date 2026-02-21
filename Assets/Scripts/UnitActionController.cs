@@ -10,6 +10,7 @@ public class UnitActionController : MonoBehaviour
     [SerializeField] private InputActionReference action1;
     [SerializeField] private InputActionReference action2;
     [SerializeField] private InputActionReference action3;
+    [SerializeField] private InputActionReference actionUltimate;
     [SerializeField] private InputActionReference confirmAction;
 
     [Header("Slots")]
@@ -22,6 +23,7 @@ public class UnitActionController : MonoBehaviour
     [SerializeField] private Color punchGizmoColor = new Color(1f, 0.4f, 0.2f, 0.35f);
 
     private Unit unit;
+    private TeamCurrencyManager currencyManager;
     private UnitAction selectedAction;
     private bool actionUsed;
     private bool isCharging;
@@ -71,6 +73,7 @@ public class UnitActionController : MonoBehaviour
     private void Awake()
     {
         unit = GetComponent<Unit>();
+        currencyManager = FindFirstObjectByType<TeamCurrencyManager>();
         EnsureTurnManager();
     }
 
@@ -80,6 +83,7 @@ public class UnitActionController : MonoBehaviour
         Bind(action1, OnAction1);
         Bind(action2, OnAction2);
         Bind(action3, OnAction3);
+        Bind(actionUltimate, OnActionUltimate);
         BindConfirm();
 
         BindTurnEvents();
@@ -90,6 +94,7 @@ public class UnitActionController : MonoBehaviour
         Unbind(action1, OnAction1);
         Unbind(action2, OnAction2);
         Unbind(action3, OnAction3);
+        Unbind(actionUltimate, OnActionUltimate);
         UnbindConfirm();
 
         UnbindTurnEvents();
@@ -108,6 +113,11 @@ public class UnitActionController : MonoBehaviour
     private void OnAction3(InputAction.CallbackContext context)
     {
         Select(slot3);
+    }
+
+    private void OnActionUltimate(InputAction.CallbackContext context)
+    {
+        SelectUltimate();
     }
 
     private void OnConfirm(InputAction.CallbackContext context)
@@ -378,12 +388,23 @@ public class UnitActionController : MonoBehaviour
     private void ExecuteSelected()
     {
         UnitAction firedAction = selectedAction;
+        bool isUltimate = firedAction != null && firedAction.IsUltimate;
+
         if (selectedAction.TryExecute(unit, turnManager))
         {
             actionUsed = true;
             ActionFired?.Invoke(firedAction);
 
-            if (turnManager != null && selectedAction.EndsActionImmediately)
+            if (isUltimate)
+            {
+                currencyManager?.TrySpendUltimate(unit.TeamId);
+            }
+            else
+            {
+                currencyManager?.AddDumbPoints(unit.TeamId, firedAction.DumbPoints);
+            }
+
+            if (turnManager != null && firedAction.EndsActionImmediately)
             {
                 turnManager.NotifyActionEnded(unit);
             }
@@ -450,6 +471,42 @@ public class UnitActionController : MonoBehaviour
             case 1: Select(slot2); break;
             case 2: Select(slot3); break;
         }
+    }
+
+    /// <summary>
+    /// Selects the team's ultimate action if 1000 dumb points are available.
+    /// Safe to call from UI.
+    /// </summary>
+    public void SelectUltimate()
+    {
+        if (!IsMyActionPhase() || actionUsed)
+        {
+            return;
+        }
+
+        if (currencyManager == null || currencyManager.GetDumbPoints(unit.TeamId) < 1000)
+        {
+            return;
+        }
+
+        UnitAction ultimate = GetTeamUltimate();
+        if (ultimate == null)
+        {
+            return;
+        }
+
+        Select(ultimate);
+    }
+
+    private UnitAction GetTeamUltimate()
+    {
+        int teamId = unit.TeamId;
+        if (teamId >= 0 && teamId < MatchSetupData.Teams.Count)
+        {
+            return MatchSetupData.Teams[teamId].UltimateAction;
+        }
+
+        return null;
     }
 
     public void SetTurnManager(TurnManager manager)

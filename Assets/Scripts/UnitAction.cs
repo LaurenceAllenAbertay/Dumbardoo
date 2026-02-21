@@ -6,11 +6,15 @@ public abstract class UnitAction : ScriptableObject
     [SerializeField] private Sprite icon;
     [SerializeField] private int baseCost = 150;
     [SerializeField] private int priceVariance = 20;
+    [SerializeField] private int dumbPoints = 10;
+    [SerializeField] private bool isUltimate = false;
 
     public string ActionName => actionName;
     public Sprite Icon => icon;
     public int BaseCost => baseCost;
     public int PriceVariance => priceVariance;
+    public int DumbPoints => dumbPoints;
+    public bool IsUltimate => isUltimate;
     public virtual bool EndsActionImmediately => true;
 
     /// <summary>

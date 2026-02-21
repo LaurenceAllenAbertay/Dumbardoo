@@ -9,7 +9,19 @@ public class ShopActionButtonUI : MonoBehaviour
     [SerializeField] private TMP_Text actionNameText;
     [SerializeField] private TMP_Text priceText;
     [SerializeField] private Image iconImage;
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private Color ultimateColor = new Color(1f, 0.84f, 0f, 1f);
     [SerializeField] private string soldOutLabel = "SOLD OUT!";
+
+    private Color defaultBackgroundColor = Color.white;
+
+    private void Awake()
+    {
+        if (backgroundImage != null)
+        {
+            defaultBackgroundColor = backgroundImage.color;
+        }
+    }
 
     public void Configure(UnitAction action, int price, Action onClicked)
     {
@@ -37,6 +49,8 @@ public class ShopActionButtonUI : MonoBehaviour
             iconImage.enabled = iconImage.sprite != null;
         }
 
+        SetUltimateStyle(action != null && action.IsUltimate);
+
         if (button != null)
         {
             button.onClick.RemoveAllListeners();
@@ -60,6 +74,16 @@ public class ShopActionButtonUI : MonoBehaviour
         {
             button.interactable = false;
         }
+    }
+
+    private void SetUltimateStyle(bool isUltimate)
+    {
+        if (backgroundImage == null)
+        {
+            return;
+        }
+
+        backgroundImage.color = isUltimate ? ultimateColor : defaultBackgroundColor;
     }
 
     private void EnsurePriceText()

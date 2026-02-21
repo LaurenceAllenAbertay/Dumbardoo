@@ -8,6 +8,23 @@ public static class MatchSetupData
     /// <summary>Wins accumulated per team index across all rounds this session.</summary>
     public static readonly Dictionary<int, int> TeamWins = new Dictionary<int, int>();
 
+    /// <summary>Dumb points accumulated per team. Persists across rounds; only cleared on full session reset.</summary>
+    public static readonly Dictionary<int, int> TeamDumbPoints = new Dictionary<int, int>();
+
+    /// <summary>Fired when a team's ultimate action is replaced (e.g. via the shop).</summary>
+    public static event System.Action<int, UnitAction> UltimateChanged;
+
+    public static void SetTeamUltimate(int teamId, UnitAction action)
+    {
+        if (teamId < 0 || teamId >= Teams.Count)
+        {
+            return;
+        }
+
+        Teams[teamId].UltimateAction = action;
+        UltimateChanged?.Invoke(teamId, action);
+    }
+
     /// <summary>Winning team id for each completed round, in order.</summary>
     public static readonly List<int> RoundResults = new List<int>();
 
@@ -57,6 +74,9 @@ public static class MatchSetupData
         /// </summary>
         public List<UnitSlotData> UnitSlots { get; } = new List<UnitSlotData>();
 
+        /// <summary>The team's current ultimate action, shared by all units on the team.</summary>
+        public UnitAction UltimateAction { get; set; }
+
         public TeamSetup(string teamName, int unitCount, List<string> unitNames)
         {
             TeamName = teamName;
@@ -71,6 +91,7 @@ public static class MatchSetupData
     {
         Teams.Clear();
         TeamWins.Clear();
+        TeamDumbPoints.Clear();
         RoundResults.Clear();
         CurrentRound = 1;
     }

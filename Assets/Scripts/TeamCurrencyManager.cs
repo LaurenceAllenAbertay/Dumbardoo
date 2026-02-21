@@ -12,6 +12,7 @@ public class TeamCurrencyManager : MonoBehaviour
 
     public int BaseTeamSize => baseTeamSize;
     public event Action<int, int> GoldChanged;
+    public event Action<int, int> DumbPointsChanged;
 
     private void OnEnable()
     {
@@ -35,6 +36,12 @@ public class TeamCurrencyManager : MonoBehaviour
             int unitCount = Mathf.Max(1, team.UnitCount);
             teamSizes[i] = unitCount;
             teamGold[i] = startingGold;
+
+            // Dumb points persist across rounds — only seed to 0 if not yet present.
+            if (!MatchSetupData.TeamDumbPoints.ContainsKey(i))
+            {
+                MatchSetupData.TeamDumbPoints[i] = 0;
+            }
         }
     }
 
@@ -98,6 +105,44 @@ public class TeamCurrencyManager : MonoBehaviour
         int next = current - amount;
         teamGold[teamId] = next;
         GoldChanged?.Invoke(teamId, next);
+        return true;
+    }
+
+    public int GetDumbPoints(int teamId)
+    {
+        MatchSetupData.TeamDumbPoints.TryGetValue(teamId, out int pts);
+        return pts;
+    }
+
+    /// <summary>Adds dumb points for the given team, capped at 1000.</summary>
+    public void AddDumbPoints(int teamId, int amount)
+    {
+        if (amount <= 0)
+        {
+            return;
+        }
+
+        int current = GetDumbPoints(teamId);
+        if (current >= 1000)
+        {
+            return;
+        }
+
+        int next = Mathf.Min(1000, current + amount);
+        MatchSetupData.TeamDumbPoints[teamId] = next;
+        DumbPointsChanged?.Invoke(teamId, next);
+    }
+
+    /// <summary>Returns true and resets dumb points to 0 if the team is at 1000.</summary>
+    public bool TrySpendUltimate(int teamId)
+    {
+        if (GetDumbPoints(teamId) < 1000)
+        {
+            return false;
+        }
+
+        MatchSetupData.TeamDumbPoints[teamId] = 0;
+        DumbPointsChanged?.Invoke(teamId, 0);
         return true;
     }
 

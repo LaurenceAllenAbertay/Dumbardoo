@@ -19,6 +19,10 @@ public class MatchSetupSpawner : MonoBehaviour
     [SerializeField] private TurnManager turnManager;
     [SerializeField] private TeamCurrencyManager currencyManager;
 
+    [Header("Ultimate")]
+    [Tooltip("The default ultimate action assigned to every team at the start of a session.")]
+    [SerializeField] private UnitAction defaultUltimateAction;
+
     // Tracks the root GameObjects that own each team's units so they can be
     // destroyed cleanly at the start of every new round.
     private readonly List<GameObject> teamRoots = new List<GameObject>();
@@ -130,8 +134,9 @@ public class MatchSetupSpawner : MonoBehaviour
                 unitNames.Add($"Unit {i + 1}");
             }
 
-            MatchSetupData.Teams.Add(new MatchSetupData.TeamSetup(teamName, 4, unitNames));
-        }
+            var setup = new MatchSetupData.TeamSetup(teamName, 4, unitNames);
+            setup.UltimateAction = defaultUltimateAction;
+            MatchSetupData.Teams.Add(setup);        }
     }
 
     /// <summary>
@@ -160,6 +165,12 @@ public class MatchSetupSpawner : MonoBehaviour
         {
             MatchSetupData.TeamSetup team = MatchSetupData.Teams[teamIndex];
             bool isRespawn = team.UnitSlots.Count > 0;
+
+            // Seed the default ultimate on first spawn if none is set.
+            if (team.UltimateAction == null && defaultUltimateAction != null)
+            {
+                team.UltimateAction = defaultUltimateAction;
+            }
 
             if (!isRespawn)
             {

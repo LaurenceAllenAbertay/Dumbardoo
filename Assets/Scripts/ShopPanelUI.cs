@@ -209,10 +209,47 @@ public class ShopPanelUI : MonoBehaviour
             return;
         }
 
+        if (offers[offerIndex].Action != null && offers[offerIndex].Action.IsUltimate)
+        {
+            PurchaseUltimate(offerIndex);
+            return;
+        }
+
         pendingAction = offers[offerIndex].Action;
         pendingPrice = offers[offerIndex].Price;
         pendingOfferIndex = offerIndex;
         SetInfoText(selectReplaceText);
+    }
+
+    /// <summary>
+    /// Immediately purchases an ultimate action and replaces the team's current ultimate.
+    /// No slot selection step — ultimates are team-wide.
+    /// </summary>
+    private void PurchaseUltimate(int offerIndex)
+    {
+        if (currencyManager == null || teamId >= MatchSetupData.Teams.Count)
+        {
+            return;
+        }
+
+        int price = offers[offerIndex].Price;
+        if (!currencyManager.TrySpendGold(teamId, price))
+        {
+            SetInfoText(notEnoughGoldText);
+            return;
+        }
+
+        MatchSetupData.SetTeamUltimate(teamId, offers[offerIndex].Action);
+
+        ShopOffer offer = offers[offerIndex];
+        offer.SoldOut = true;
+        offers[offerIndex] = offer;
+        if (offerIndex < actionButtons.Length && actionButtons[offerIndex] != null)
+        {
+            actionButtons[offerIndex].MarkSoldOut();
+        }
+
+        SetInfoText(purchaseCompleteText);
     }
 
     /// <summary>
