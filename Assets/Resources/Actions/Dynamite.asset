@@ -16,6 +16,8 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 8d5d7c93f41eace4287a78724a1df0d4, type: 3}
   baseCost: 50
   priceVariance: 20
+  dumbPoints: 50
+  isUltimate: 0
   DynamitePrefab: {fileID: 2269527813549029088, guid: cd5c5df60fe686f46acda8fe2a4aee00, type: 3}
   minThrowForce: 2
   maxThrowForce: 20

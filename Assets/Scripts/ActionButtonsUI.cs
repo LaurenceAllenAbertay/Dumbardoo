@@ -119,6 +119,10 @@ public class ActionButtonsUI : MonoBehaviour
             RefreshIcons();
             RefreshUltimateButton();
         }
+        else if (ultimateButton != null)
+        {
+            ultimateButton.gameObject.SetActive(false);
+        }
     }
 
     private void OnButtonClicked(int index)
@@ -195,8 +199,12 @@ public class ActionButtonsUI : MonoBehaviour
             && currentTeamId < MatchSetupData.Teams.Count
             && MatchSetupData.Teams[currentTeamId].UltimateAction != null;
 
-        ultimateButton.interactable = ready;
-        RefreshUltimateIcon();
+        ultimateButton.gameObject.SetActive(ready);
+
+        if (ready)
+        {
+            RefreshUltimateIcon();
+        }
     }
 
     private void SetVisible(bool visible)

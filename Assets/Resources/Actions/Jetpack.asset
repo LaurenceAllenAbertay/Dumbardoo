@@ -16,6 +16,8 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: fab88c029ff61a44695a4aa31f047df7, type: 3}
   baseCost: 100
   priceVariance: 20
+  dumbPoints: 150
+  isUltimate: 0
   maxFuelSeconds: 4
   fuelBurnPerSecond: 1
   thrustAcceleration: 16
