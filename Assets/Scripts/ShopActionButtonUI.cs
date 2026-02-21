@@ -32,7 +32,7 @@ public class ShopActionButtonUI : MonoBehaviour
 
         if (actionNameText != null)
         {
-            actionNameText.text = string.Empty;
+            actionNameText.text = action != null ? action.ActionName : string.Empty;
         }
 
         EnsurePriceText();

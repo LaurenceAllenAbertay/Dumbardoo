@@ -195,7 +195,7 @@ public class MatchSetupSpawner : MonoBehaviour
 
                 Vector3 spawnPoint = assignedPositions[positionCursor % assignedPositions.Count];
                 positionCursor++;
-                Unit unitInstance = Instantiate(unitPrefab, spawnPoint, Quaternion.identity);
+                Unit unitInstance = Instantiate(unitPrefab, spawnPoint, Quaternion.Euler(0f, Random.Range(0f, 360f), 0f));
                 unitInstance.transform.SetParent(teamRoot.transform, true);
                 unitInstance.SetTeamId(teamIndex);
                 unitInstance.SetUnitName(slotData.UnitName);

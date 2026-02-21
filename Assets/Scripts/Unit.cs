@@ -58,6 +58,8 @@ public class Unit : MonoBehaviour
         {
             currentHealth = maxHealth;
         }
+        
+
     }
 
     public void BeginTurn()
