@@ -17,6 +17,7 @@ public class JetpackActionController : MonoBehaviour
 
     private float maxFuelSeconds;
     private float fuelBurnPerSecond;
+    private float forwardBurnMultiplier;
     private float thrustAcceleration;
     private float maxUpSpeed;
     private float airMoveSpeed;
@@ -30,6 +31,8 @@ public class JetpackActionController : MonoBehaviour
     private bool tookOff;
 
     public bool IsThrusting => isActive && isThrustHeld;
+    public bool IsJetpackActive => isActive;
+    public float FuelNormalized => maxFuelSeconds > 0f ? Mathf.Clamp01(fuelRemaining / maxFuelSeconds) : 0f;
 
     private void Awake()
     {
@@ -45,6 +48,7 @@ public class JetpackActionController : MonoBehaviour
         Transform cameraRef,
         float maxFuel,
         float burnPerSecond,
+        float burnMultiplierForward,
         float acceleration,
         float maxSpeed,
         float airSpeed,
@@ -61,6 +65,7 @@ public class JetpackActionController : MonoBehaviour
 
         maxFuelSeconds = Mathf.Max(0f, maxFuel);
         fuelBurnPerSecond = Mathf.Max(0f, burnPerSecond);
+        forwardBurnMultiplier = Mathf.Max(1f, burnMultiplierForward);
         thrustAcceleration = Mathf.Max(0f, acceleration);
         maxUpSpeed = Mathf.Max(0f, maxSpeed);
         airMoveSpeed = Mathf.Max(0f, airSpeed);
@@ -120,50 +125,38 @@ public class JetpackActionController : MonoBehaviour
         }
 
         Vector3 velocity = body.linearVelocity;
-        Vector3 moveDirection = Vector3.zero;
-        bool canMoveHorizontally = tookOff && !grounded && fuelRemaining > 0f;
-        if (canMoveHorizontally)
-        {
-            moveDirection = GetAirMoveDirection();
-            if (moveDirection.sqrMagnitude > 0f)
-            {
-                Vector3 horizontal = moveDirection * airMoveSpeed;
-                velocity.x = horizontal.x;
-                velocity.z = horizontal.z;
+        bool isFiring = isThrustHeld && fuelRemaining > 0f;
 
-                if (turnManager != null && turnManager.Phase == TurnManager.TurnPhase.Action)
+        if (isFiring)
+        {
+            Vector3 moveDirection = Vector3.zero;
+            if (tookOff && !grounded)
+            {
+                moveDirection = GetAirMoveDirection();
+                if (moveDirection.sqrMagnitude > 0f)
                 {
-                    body.MoveRotation(Quaternion.LookRotation(moveDirection, Vector3.up));
+                    Vector3 horizontal = moveDirection * airMoveSpeed;
+                    velocity.x = horizontal.x;
+                    velocity.z = horizontal.z;
+
+                    if (turnManager != null && turnManager.Phase == TurnManager.TurnPhase.Action)
+                    {
+                        body.MoveRotation(Quaternion.LookRotation(moveDirection, Vector3.up));
+                    }
                 }
             }
-        }
 
-        float burnRate = 0f;
-        if (isThrustHeld && fuelRemaining > 0f)
-        {
-            burnRate += fuelBurnPerSecond;
             float targetY = Mathf.Min(maxUpSpeed, velocity.y + thrustAcceleration * Time.fixedDeltaTime);
             velocity.y = targetY;
+
+            float burnRate = moveDirection.sqrMagnitude > 0f
+                ? fuelBurnPerSecond * forwardBurnMultiplier
+                : fuelBurnPerSecond;
+            fuelRemaining = Mathf.Max(0f, fuelRemaining - burnRate * Time.fixedDeltaTime);
         }
         else if (grounded && !tookOff)
         {
             velocity.y = 0f;
-        }
-
-        if (moveDirection.sqrMagnitude > 0f && fuelRemaining > 0f)
-        {
-            burnRate += fuelBurnPerSecond;
-        }
-
-        if (burnRate > 0f)
-        {
-            fuelRemaining = Mathf.Max(0f, fuelRemaining - burnRate * Time.fixedDeltaTime);
-        }
-
-        if (fuelRemaining <= 0f && grounded && tookOff)
-        {
-            StopAction(true);
-            return;
         }
 
         body.linearVelocity = velocity;

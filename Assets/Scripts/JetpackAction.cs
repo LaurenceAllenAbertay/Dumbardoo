@@ -10,6 +10,7 @@ public class JetpackAction : UnitAction
     [Header("Fuel")]
     [SerializeField] private float maxFuelSeconds = 3f;
     [SerializeField] private float fuelBurnPerSecond = 1f;
+    [SerializeField] private float forwardBurnMultiplier = 1.5f;
 
     [Header("Thrust")]
     [SerializeField] private float thrustAcceleration = 16f;
@@ -64,6 +65,7 @@ public class JetpackAction : UnitAction
             cameraTransform,
             maxFuelSeconds,
             fuelBurnPerSecond,
+            forwardBurnMultiplier,
             thrustAcceleration,
             maxUpSpeed,
             airMoveSpeed,

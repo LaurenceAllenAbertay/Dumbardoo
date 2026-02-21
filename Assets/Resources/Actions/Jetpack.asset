@@ -18,8 +18,9 @@ MonoBehaviour:
   priceVariance: 20
   dumbPoints: 150
   isUltimate: 0
-  maxFuelSeconds: 4
+  maxFuelSeconds: 3.5
   fuelBurnPerSecond: 1
+  forwardBurnMultiplier: 1.5
   thrustAcceleration: 16
   maxUpSpeed: 6
   airMoveSpeed: 3.5

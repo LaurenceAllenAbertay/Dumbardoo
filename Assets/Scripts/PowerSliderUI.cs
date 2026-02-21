@@ -2,18 +2,18 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Drives a UI Slider to visualise grenade throw-charge progress.
-/// • The slider is visible only while a grenade is being charged.
+/// Drives a UI Slider to visualise grenade throw-charge progress or jetpack fuel.
+/// • The slider is visible only while a grenade is being charged or the jetpack is active.
 /// • Its value mirrors the same PingPong ramp used internally by
 ///   UnitActionController, so "release when bar is full" is intuitive.
 /// </summary>
-public class ChargeSliderUI : MonoBehaviour
+public class PowerSliderUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private TurnManager turnManager;
 
-    [Tooltip("The slider that shows charge progress (0 = min force, 1 = max force).")]
-    [SerializeField] private Slider chargeSlider;
+    [Tooltip("The slider that shows charge progress (0 = min force, 1 = max force) or jetpack fuel (1 = full, 0 = empty).")]
+    [SerializeField] private Slider powerSlider;
 
     [Tooltip("Root object to show/hide. If empty, the Slider's own GameObject is used.")]
     [SerializeField] private GameObject sliderRoot;
@@ -31,11 +31,11 @@ public class ChargeSliderUI : MonoBehaviour
             turnManager = FindFirstObjectByType<TurnManager>();
         }
 
-        if (chargeSlider != null)
+        if (powerSlider != null)
         {
-            chargeSlider.minValue = 0f;
-            chargeSlider.maxValue = 1f;
-            chargeSlider.interactable = false;
+            powerSlider.minValue = 0f;
+            powerSlider.maxValue = 1f;
+            powerSlider.interactable = false;
         }
     }
 
@@ -67,13 +67,24 @@ public class ChargeSliderUI : MonoBehaviour
             return;
         }
 
-        bool charging = currentController.IsCharging;
-        SetVisible(charging);
-
-        if (charging && chargeSlider != null)
+        if (currentController.IsCharging)
         {
-            chargeSlider.value = currentController.ChargeNormalized;
+            SetVisible(true);
+            if (powerSlider != null)
+                powerSlider.value = currentController.ChargeNormalized;
+            return;
         }
+
+        JetpackActionController jetpack = currentController.GetComponent<JetpackActionController>();
+        if (jetpack != null && jetpack.IsJetpackActive)
+        {
+            SetVisible(true);
+            if (powerSlider != null)
+                powerSlider.value = jetpack.FuelNormalized;
+            return;
+        }
+
+        SetVisible(false);
     }
 
     // Event handlers
@@ -99,7 +110,7 @@ public class ChargeSliderUI : MonoBehaviour
     {
         GameObject root = sliderRoot != null
             ? sliderRoot
-            : chargeSlider != null ? chargeSlider.gameObject : null;
+            : powerSlider != null ? powerSlider.gameObject : null;
 
         if (root != null && root.activeSelf != visible)
         {

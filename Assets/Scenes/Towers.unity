@@ -6526,7 +6526,7 @@ RectTransform:
   m_Father: {fileID: 58178833}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -7600,7 +7600,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1082668095
@@ -10815,7 +10815,7 @@ GameObject:
   - component: {fileID: 1637836244}
   - component: {fileID: 1637836245}
   m_Layer: 5
-  m_Name: ChargeMeter
+  m_Name: PowerMeter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10854,7 +10854,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   turnManager: {fileID: 241064153}
-  chargeSlider: {fileID: 1754433277}
+  powerSlider: {fileID: 1754433277}
   sliderRoot: {fileID: 1754433275}
 --- !u!1 &1654222489
 GameObject:
@@ -11593,12 +11593,12 @@ GameObject:
   - component: {fileID: 1754433276}
   - component: {fileID: 1754433277}
   m_Layer: 6
-  m_Name: ChargeSlider
+  m_Name: PowerSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1754433276
 RectTransform:
   m_ObjectHideFlags: 0
@@ -11818,7 +11818,7 @@ RectTransform:
   m_Father: {fileID: 772799884}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -13988,7 +13988,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2128866093
 RectTransform:
   m_ObjectHideFlags: 0
