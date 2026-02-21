@@ -17,14 +17,14 @@ public class ThirdPersonCameraController : MonoBehaviour
     [SerializeField] private float rotationSmoothSpeed = 12f;
     [SerializeField] private float turnChangeDuration = 1f;
 
-    [Header("Dynamite Follow")]
-    [SerializeField] private float DynamiteFollowDistance = 7f;
-    [SerializeField] private Vector3 DynamiteTargetOffset = new Vector3(0f, 2.6f, 0f);
-    [SerializeField] private float DynamitePitch = 30f;
-    [SerializeField] private float DynamiteVelocityDeadZone = 0.25f;
-    [Tooltip("How quickly the camera yaw catches up to the dynamite's travel direction. " +
+    [Header("Projectile Follow")]
+    [SerializeField] private float ProjectileFollowDistance = 7f;
+    [SerializeField] private Vector3 ProjectileTargetOffset = new Vector3(0f, 2.6f, 0f);
+    [SerializeField] private float ProjectilePitch = 30f;
+    [SerializeField] private float ProjectileVelocityDeadZone = 0.25f;
+    [Tooltip("How quickly the camera yaw catches up to the projectile's travel direction. " +
              "Higher = snappier, lower = more cinematic lag.")]
-    [SerializeField] private float dynamiteDirectionSmoothTime = 0.25f;
+    [SerializeField] private float projectileDirectionSmoothTime = 0.25f;
 
     [Header("Rotation")]
     [SerializeField] private float lookSensitivity = 120f;
@@ -253,9 +253,9 @@ public class ThirdPersonCameraController : MonoBehaviour
     }
 
     /// <summary>
-    /// Begins a temporary Dynamite follow from above and behind the travel direction.
+    /// Begins a temporary follow from above and behind the projectile's travel direction.
     /// </summary>
-    public int BeginDynamiteFollow(Transform newTarget, Transform returnTarget, Rigidbody velocitySource, Vector3 initialDirection)
+    public int BeginProjectileFollow(Transform newTarget, Transform returnTarget, Rigidbody velocitySource, Vector3 initialDirection)
     {
         if (newTarget == null)
         {
@@ -263,9 +263,9 @@ public class ThirdPersonCameraController : MonoBehaviour
         }
 
         overrideActive = true;
-        overrideTargetOffset = DynamiteTargetOffset;
-        overrideFollowDistance = DynamiteFollowDistance;
-        overridePitch = DynamitePitch;
+        overrideTargetOffset = ProjectileTargetOffset;
+        overrideFollowDistance = ProjectileFollowDistance;
+        overridePitch = ProjectilePitch;
         overrideUseVelocity = true;
         overrideVelocitySource = velocitySource;
         overrideLastDirection = initialDirection.sqrMagnitude > 0.001f ? initialDirection : Vector3.forward;
@@ -424,7 +424,7 @@ public class ThirdPersonCameraController : MonoBehaviour
         if (overrideUseVelocity && overrideVelocitySource != null)
         {
             Vector3 velocity = overrideVelocitySource.linearVelocity;
-            if (velocity.sqrMagnitude >= DynamiteVelocityDeadZone * DynamiteVelocityDeadZone)
+            if (velocity.sqrMagnitude >= ProjectileVelocityDeadZone * ProjectileVelocityDeadZone)
             {
                 overrideLastDirection = velocity;
             }
@@ -436,7 +436,7 @@ public class ThirdPersonCameraController : MonoBehaviour
         }
 
         // Smooth the direction so rapid bounces or direction flips don't snap the camera.
-        float smoothTime = Mathf.Max(0.01f, dynamiteDirectionSmoothTime);
+        float smoothTime = Mathf.Max(0.01f, projectileDirectionSmoothTime);
         overrideSmoothedDirection = Vector3.SmoothDamp(
             overrideSmoothedDirection,
             overrideLastDirection,

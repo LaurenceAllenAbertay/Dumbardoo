@@ -74,7 +74,7 @@ public class DynamiteAction : UnitAction
         ThirdPersonCameraController cameraController = cam.GetComponent<ThirdPersonCameraController>();
         if (cameraController != null)
         {
-            int followId = cameraController.BeginDynamiteFollow(Dynamite.transform, unit.transform, body, cam.transform.forward);
+            int followId = cameraController.BeginProjectileFollow(Dynamite.transform, unit.transform, body, cam.transform.forward);
             Dynamite.SetCameraFollow(cameraController, followId);
         }
 

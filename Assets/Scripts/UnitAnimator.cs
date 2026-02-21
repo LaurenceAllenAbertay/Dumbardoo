@@ -10,18 +10,20 @@ using UnityEngine;
 ///                           3  Dynamite
 ///                           4  Jetpack
 ///                           5  Explode
+///                           6  T-Shirt Cannon
 ///
 /// </summary>
 [RequireComponent(typeof(Unit))]
 public class UnitAnimator : MonoBehaviour
 {
     // Action index constants
-    public const int ActionNone     = 0;
-    public const int ActionPunch    = 1;
-    public const int ActionGun      = 2;
-    public const int ActionDynamite = 3;
-    public const int ActionJetpack  = 4;
-    public const int ActionExplode  = 5;
+    public const int ActionNone        = 0;
+    public const int ActionPunch       = 1;
+    public const int ActionGun         = 2;
+    public const int ActionDynamite    = 3;
+    public const int ActionJetpack     = 4;
+    public const int ActionExplode     = 5;
+    public const int ActionTShirtCannon = 6;
 
     // Animator parameter hashes
     private static readonly int IsWalkingHash    = Animator.StringToHash("IsWalking");
@@ -194,12 +196,13 @@ public class UnitAnimator : MonoBehaviour
     
     private static int GetActionIndex(UnitAction action)
     {
-        if (action == null)        return ActionNone;
-        if (action is PunchAction)   return ActionPunch;
-        if (action is GunAction)     return ActionGun;
-        if (action is DynamiteAction) return ActionDynamite;
-        if (action is JetpackAction) return ActionJetpack;
-        if (action is ExplodeAction) return ActionExplode;
+        if (action == null)               return ActionNone;
+        if (action is PunchAction)        return ActionPunch;
+        if (action is GunAction)          return ActionGun;
+        if (action is DynamiteAction)     return ActionDynamite;
+        if (action is JetpackAction)      return ActionJetpack;
+        if (action is ExplodeAction)      return ActionExplode;
+        if (action is TShirtCannonAction) return ActionTShirtCannon;
         
         Debug.LogWarning($"[UnitAnimator] Unrecognised action type '{action.GetType().Name}'. " +
                          "Defaulting to ActionIndex 0. Add a case to GetActionIndex().");
