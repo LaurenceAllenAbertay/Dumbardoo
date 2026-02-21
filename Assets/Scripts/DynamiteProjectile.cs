@@ -21,13 +21,15 @@ public class DynamiteProjectile : MonoBehaviour
     private bool exploded;
     private ThirdPersonCameraController cameraController;
     private int cameraFollowId = -1;
+    private GameObject explosionVfxPrefab;
 
     /// <summary>
     /// Initializes the grenade settings for this instance.
     /// </summary>
-    public void Initialize(Unit source, string actionLabel, float fuse, float radius, int dmg, float force, float upForce, LayerMask mask)
+    public void Initialize(Unit source, string actionLabel, float fuse, float radius, int dmg, float force, float upForce, LayerMask mask, GameObject vfxPrefab = null)
     {
         sourceUnit = source;
+        explosionVfxPrefab = vfxPrefab;
         actionName = actionLabel;
         fuseSeconds = fuse;
         explosionRadius = radius;
@@ -72,6 +74,11 @@ public class DynamiteProjectile : MonoBehaviour
         }
 
         exploded = true;
+
+        if (explosionVfxPrefab != null)
+        {
+            Object.Instantiate(explosionVfxPrefab, transform.position, Quaternion.identity);
+        }
 
         if (cameraController != null && cameraFollowId >= 0)
         {

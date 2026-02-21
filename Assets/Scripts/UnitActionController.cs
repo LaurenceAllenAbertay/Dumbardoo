@@ -29,7 +29,7 @@ public class UnitActionController : MonoBehaviour
     private float currentChargeForce;
     private bool turnEventsBound;
 
-    // ── Animator events ───────────────────────────────────────────────────────
+    // Animator events
 
     /// <summary>
     /// Fired when the player selects (or re-selects to cancel) an action.
@@ -42,7 +42,7 @@ public class UnitActionController : MonoBehaviour
     /// </summary>
     public event Action<UnitAction> ActionFired;
 
-    // ── Public state ──────────────────────────────────────────────────────────
+    // Public state
 
     /// <summary>The currently highlighted action, or null when nothing is selected.</summary>
     public UnitAction SelectedAction => selectedAction;
@@ -347,8 +347,6 @@ public class UnitActionController : MonoBehaviour
         }
 
         actionRef.action.performed -= handler;
-        // Do NOT call .Disable() here. InputActionReferences are shared assets.
-        // Disabling them on one unit's destruction kills input for all others.
     }
 
     private void BindConfirm()

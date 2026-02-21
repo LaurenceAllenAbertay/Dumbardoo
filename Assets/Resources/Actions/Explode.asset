@@ -20,9 +20,9 @@ MonoBehaviour:
   damage: 60
   explosionForce: 25
   explosionUpForce: 15
-  minDamagePercent: 0.25
+  minDamagePercent: 0.5
   minKnockbackPercent: 0.35
   hitMask:
     serializedVersion: 2
     m_Bits: 64
-  explosionVfxPrefab: {fileID: 0}
+  explosionVfxPrefab: {fileID: 334401086378607480, guid: 1aa76ca9e1690bd4695be07fdce309d0, type: 3}

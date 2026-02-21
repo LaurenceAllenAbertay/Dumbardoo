@@ -21,6 +21,9 @@ public class DynamiteAction : UnitAction
     [SerializeField] private float explosionUpForce = 3f;
     [SerializeField] private LayerMask hitMask = ~0;
 
+    [Header("VFX")]
+    [SerializeField] private GameObject explosionVfxPrefab;
+
     private float currentThrowForce = -1f;
 
     /// <summary>
@@ -64,7 +67,7 @@ public class DynamiteAction : UnitAction
         Vector3 spawnPos = unit.transform.TransformPoint(spawnOffset);
         DynamiteProjectile Dynamite = Object.Instantiate(DynamitePrefab, spawnPos, Quaternion.identity);
         Dynamite.transform.rotation = Random.rotation;
-        Dynamite.Initialize(unit, ActionName, fuseSeconds, explosionRadius, damage, explosionForce, explosionUpForce, hitMask);
+        Dynamite.Initialize(unit, ActionName, fuseSeconds, explosionRadius, damage, explosionForce, explosionUpForce, hitMask, explosionVfxPrefab);
         IgnoreThrowerCollision(Dynamite, unit);
 
         Rigidbody body = Dynamite.GetComponent<Rigidbody>();

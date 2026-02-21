@@ -36,12 +36,7 @@ public class UnitAnimator : MonoBehaviour
 
     // Inspector
     [Header("References")]
-    [Tooltip("The Animator to drive. If left empty the first Animator found on " +
-             "this GameObject or any child is used.")]
     [SerializeField] private Animator animator;
-
-    [Tooltip("Optional: assign directly. If empty the sibling components are " +
-             "located automatically in Awake.")]
     [SerializeField] private UnitMovementController movementController;
     [SerializeField] private UnitActionController actionController;
     

@@ -36,16 +36,16 @@ public class UnitMovementController : MonoBehaviour
     private Vector3 jumpDirection;
     private bool wasGrounded;
     private bool loggedMissingRefs;
-    private float groundedGraceTimer;   // counts down after losing ground contact
+    private float groundedGraceTimer;
 
-    // ── Cached state for animator polling ────────────────────────────────────
+    // Cached state for animator polling
 
     private bool cachedIsGrounded = true;
     private bool cachedIsMoving;
     private bool cachedIsJumping;
     private bool cachedIsFalling;
 
-    // ── Events ────────────────────────────────────────────────────────────────
+    // Events
 
     /// <summary>
     /// Fired the frame a jump is initiated, before velocity is applied.
@@ -53,7 +53,7 @@ public class UnitMovementController : MonoBehaviour
     /// </summary>
     public event System.Action JumpStarted;
 
-    // ── Public accessors ──────────────────────────────────────────────────────
+    // Public accessors
 
     public InputActionReference JumpAction => jumpAction;
     public InputActionReference MoveAction => moveAction;

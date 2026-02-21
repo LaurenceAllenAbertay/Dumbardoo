@@ -48,6 +48,7 @@ public class Unit : MonoBehaviour
     public static event Action<Unit> UnitDied;
 
     private bool deathSequenceStarted;
+    private bool deathVfxSpawned;
     private TurnManager turnManager;
 
     private void Awake()
@@ -146,6 +147,30 @@ public class Unit : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Spawns the death VFX prefab immediately and launches each Rigidbody part
+    /// outward from <paramref name="origin"/> using <paramref name="force"/>.
+    /// Marks the VFX as already spawned so StartDeathSequence does not duplicate it.
+    /// </summary>
+    public void SpawnAndLaunchDeathVfx(Vector3 origin, float force)
+    {
+        if (deathVfxPrefab == null || deathVfxSpawned)
+        {
+            return;
+        }
+
+        deathVfxSpawned = true;
+        GameObject vfx = Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
+        foreach (Rigidbody part in vfx.GetComponentsInChildren<Rigidbody>())
+        {
+            Vector3 dir = part.position - origin;
+            Vector3 launchDir = dir.sqrMagnitude > 0.0001f ? dir.normalized : UnityEngine.Random.insideUnitSphere.normalized;
+            launchDir = (launchDir + UnityEngine.Random.insideUnitSphere * 0.3f).normalized;
+            part.linearVelocity = launchDir * force;
+            part.angularVelocity = UnityEngine.Random.insideUnitSphere * force;
+        }
+    }
+
     private void StartDeathSequence()
     {
         if (deathSequenceStarted)
@@ -156,8 +181,9 @@ public class Unit : MonoBehaviour
         deathSequenceStarted = true;
 
         // Spawn VFX immediately so it plays right as the unit dies.
-        if (deathVfxPrefab != null)
+        if (deathVfxPrefab != null && !deathVfxSpawned)
         {
+            deathVfxSpawned = true;
             GameObject vfx = Instantiate(deathVfxPrefab, transform.position, Quaternion.identity);
 
             // Inherit the unit's current velocity so the VFX parts continue

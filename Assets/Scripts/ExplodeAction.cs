@@ -54,6 +54,8 @@ public class ExplodeAction : UnitAction
             }
         }
 
+        unit.SpawnAndLaunchDeathVfx(origin, explosionForce);
+
         // Kill the user last so their name is still valid for damage attribution above.
         unit.ApplyDamage(unit.CurrentHealth, null, ActionName);
     }
