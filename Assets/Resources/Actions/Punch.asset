@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Punch
   m_EditorClassIdentifier: 
   actionName: Punch
-  icon: {fileID: 21300000, guid: 124edae699b49aa458943a27c9242bfe, type: 3}
+  icon: {fileID: 21300000, guid: 026678a8b05fdc343861fa62f47f6a09, type: 3}
   baseCost: 30
   priceVariance: 10
   range: 1.6

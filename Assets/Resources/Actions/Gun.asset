@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Gun
   m_EditorClassIdentifier: 
   actionName: Gun
-  icon: {fileID: 21300000, guid: 699d2f36f7b8c234ca9b7fce3033f0ce, type: 3}
+  icon: {fileID: 21300000, guid: 13ff1509ac16ef64794b374b6e1233cb, type: 3}
   baseCost: 30
   priceVariance: 10
   maxRange: 40
