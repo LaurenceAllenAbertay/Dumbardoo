@@ -3,48 +3,19 @@ using UnityEngine;
 /// <summary>
 /// Drives the unit's Animator based on movement state and action input.
 ///
-/// ── Animator parameter contract ──────────────────────────────────────────────
-///
-///  bool    IsWalking    — unit is moving on the ground during Movement phase
-///  bool    IsFalling    — unit is airborne but NOT from a jump (walked/knocked off an edge)
-///  bool    IsAiming     — an action is selected; loops the aim animation
-///  bool    IsCharging   — dynamite charge is held (sub-state within DynamiteAim)
-///  int     ActionIndex  — identifies which action is selected / fired:
+///  ActionIndex: identifies which action is selected / fired:
 ///                           0  None
 ///                           1  Punch
 ///                           2  Gun
 ///                           3  Dynamite
 ///                           4  Jetpack
 ///                           5  Explode
-///  trigger Jump         — set once the moment a jump is initiated;
-///                         transitions to the jump animation immediately
-///  trigger Fire         — fired once when the action is executed;
-///                         transitions aim → fire one-shot → idle/next state
 ///
-/// ── Suggested Animator layout ────────────────────────────────────────────────
-///  Any State → Jump        (Jump trigger)          — one-shot, exit by time
-///  Any State → Walk        (IsWalking  == true)    — !! Has Exit Time must be OFF !!
-///  Any State → Fall        (IsFalling  == true)    — loops until grounded
-///  Any State → PunchAim    (IsAiming && ActionIndex == 1)
-///  Any State → GunAim      (IsAiming && ActionIndex == 2)
-///  Any State → DynamiteAim (IsAiming && ActionIndex == 3)
-///  Any State → JetpackAim  (IsAiming && ActionIndex == 4)
-///  Any State → ExplodeAim  (IsAiming && ActionIndex == 5)
-///  PunchAim    → PunchFire    (Fire trigger)
-///  GunAim      → GunFire      (Fire trigger)
-///  DynamiteAim → DynamiteFire (Fire trigger)
-///  JetpackAim  → JetpackFire  (Fire trigger)
-///  ExplodeAim  → ExplodeFire  (Fire trigger)
-///  *Fire → Idle  (Exit Time, once the animation completes)
-///  Jump  → Idle  (exit time once animation completes)
-///  Fall  → Idle  (IsFalling == false)
-///  Walk  → Idle  (IsWalking == false)    — !! Has Exit Time must be OFF !!
-///  Idle  → Walk  (IsWalking == true)     — !! Has Exit Time must be OFF !!
 /// </summary>
 [RequireComponent(typeof(Unit))]
 public class UnitAnimator : MonoBehaviour
 {
-    // ── Action index constants ─────────────────────────────────────────────────
+    // Action index constants
     public const int ActionNone     = 0;
     public const int ActionPunch    = 1;
     public const int ActionGun      = 2;
@@ -52,17 +23,18 @@ public class UnitAnimator : MonoBehaviour
     public const int ActionJetpack  = 4;
     public const int ActionExplode  = 5;
 
-    // ── Animator parameter hashes ──────────────────────────────────────────────
+    // Animator parameter hashes
     private static readonly int IsWalkingHash    = Animator.StringToHash("IsWalking");
     private static readonly int IsFallingHash    = Animator.StringToHash("IsFalling");
     private static readonly int IsJumpingHash    = Animator.StringToHash("IsJumping");
     private static readonly int IsAimingHash     = Animator.StringToHash("IsAiming");
     private static readonly int IsChargingHash   = Animator.StringToHash("IsCharging");
+    private static readonly int IsActionActiveHash = Animator.StringToHash("IsActionActive");
     private static readonly int ActionIndexHash  = Animator.StringToHash("ActionIndex");
     private static readonly int JumpHash         = Animator.StringToHash("Jump");
     private static readonly int FireHash         = Animator.StringToHash("Fire");
 
-    // ── Inspector ──────────────────────────────────────────────────────────────
+    // Inspector
     [Header("References")]
     [Tooltip("The Animator to drive. If left empty the first Animator found on " +
              "this GameObject or any child is used.")]
@@ -72,12 +44,11 @@ public class UnitAnimator : MonoBehaviour
              "located automatically in Awake.")]
     [SerializeField] private UnitMovementController movementController;
     [SerializeField] private UnitActionController actionController;
-
-    // ── Runtime ────────────────────────────────────────────────────────────────
+    
     private Unit unit;
+    private UnitAction lastFiredAction;
 
-    // ── Unity lifecycle ────────────────────────────────────────────────────────
-
+    // Unity lifecycle
     private void Awake()
     {
         unit = GetComponent<Unit>();
@@ -141,9 +112,10 @@ public class UnitAnimator : MonoBehaviour
 
         UpdateLocomotion();
         UpdateCharging();
+        UpdateActionActive();
     }
 
-    // ── Movement ───────────────────────────────────────────────────────────────
+    // Movement
 
     private void UpdateLocomotion()
     {
@@ -156,7 +128,7 @@ public class UnitAnimator : MonoBehaviour
         animator.SetBool(IsJumpingHash, jumping); 
     }
 
-    // ── Jump ───────────────────────────────────────────────────────────────────
+    // Jump
 
     private void OnJumpStarted()
     {
@@ -168,7 +140,7 @@ public class UnitAnimator : MonoBehaviour
         animator.SetTrigger(JumpHash);
     }
 
-    // ── Charging ───────────────────────────────────────────────────────────────
+    // Charging
 
     private void UpdateCharging()
     {
@@ -176,7 +148,13 @@ public class UnitAnimator : MonoBehaviour
         animator.SetBool(IsChargingHash, charging);
     }
 
-    // ── Action selection ───────────────────────────────────────────────────────
+    // Action selection
+
+    private void UpdateActionActive()
+    {
+        bool active = lastFiredAction != null && unit != null && lastFiredAction.GetIsActive(unit);
+        animator.SetBool(IsActionActiveHash, active);
+    }
 
     private void OnActionSelectionChanged(UnitAction action)
     {
@@ -187,7 +165,7 @@ public class UnitAnimator : MonoBehaviour
 
         if (action == null)
         {
-            // Deselected — leave aim state.
+            lastFiredAction = null;
             animator.SetBool(IsAimingHash,    false);
             animator.SetInteger(ActionIndexHash, ActionNone);
         }
@@ -198,7 +176,7 @@ public class UnitAnimator : MonoBehaviour
         }
     }
 
-    // ── Action fire ────────────────────────────────────────────────────────────
+    // Action fire
 
     private void OnActionFired(UnitAction action)
     {
@@ -207,8 +185,7 @@ public class UnitAnimator : MonoBehaviour
             return;
         }
 
-        // Make sure ActionIndex reflects the fired action in case the trigger is
-        // evaluated before the next frame's selection-changed callback settles.
+        lastFiredAction = action;
         animator.SetInteger(ActionIndexHash, GetActionIndex(action));
 
         // Aiming ends the moment the action fires.
@@ -218,13 +195,8 @@ public class UnitAnimator : MonoBehaviour
         animator.SetTrigger(FireHash);
     }
 
-    // ── Helpers ────────────────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Maps a <see cref="UnitAction"/> instance to the integer constant used
-    /// by the Animator's <c>ActionIndex</c> parameter.
-    /// Extend this method if you add new action types.
-    /// </summary>
+    // Helpers
+    
     private static int GetActionIndex(UnitAction action)
     {
         if (action == null)        return ActionNone;
@@ -233,10 +205,8 @@ public class UnitAnimator : MonoBehaviour
         if (action is DynamiteAction) return ActionDynamite;
         if (action is JetpackAction) return ActionJetpack;
         if (action is ExplodeAction) return ActionExplode;
-
-        // Unknown / future action type — treat as generic (reuse Punch slot or
-        // add a dedicated index for it).
-        Debug.LogWarning($"UnitAnimator: Unrecognised action type '{action.GetType().Name}'. " +
+        
+        Debug.LogWarning($"[UnitAnimator] Unrecognised action type '{action.GetType().Name}'. " +
                          "Defaulting to ActionIndex 0. Add a case to GetActionIndex().");
         return ActionNone;
     }

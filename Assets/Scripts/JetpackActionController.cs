@@ -29,6 +29,8 @@ public class JetpackActionController : MonoBehaviour
     private bool isThrustHeld;
     private bool tookOff;
 
+    public bool IsThrusting => isActive && isThrustHeld;
+
     private void Awake()
     {
         unit = GetComponent<Unit>();

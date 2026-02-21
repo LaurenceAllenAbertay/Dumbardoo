@@ -23,6 +23,13 @@ public class JetpackAction : UnitAction
 
     public override bool EndsActionImmediately => false;
 
+    public override bool GetIsActive(Unit unit)
+    {
+        if (unit == null) return false;
+        JetpackActionController controller = unit.GetComponent<JetpackActionController>();
+        return controller != null && controller.IsThrusting;
+    }
+
     protected override void Execute(Unit unit, TurnManager turnManager)
     {
         if (unit == null || turnManager == null)

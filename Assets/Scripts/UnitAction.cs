@@ -13,6 +13,12 @@ public abstract class UnitAction : ScriptableObject
     public int PriceVariance => priceVariance;
     public virtual bool EndsActionImmediately => true;
 
+    /// <summary>
+    /// Returns true while this action should hold a looping animator state on the given unit.
+    /// Override in actions that have sustained animation (e.g. jetpack thrust).
+    /// </summary>
+    public virtual bool GetIsActive(Unit unit) => false;
+
     public bool TryExecute(Unit unit, TurnManager turnManager)
     {
         if (unit == null || turnManager == null)
