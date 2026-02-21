@@ -288,6 +288,23 @@ public class UnitActionController : MonoBehaviour
 
     private void Update()
     {
+        // While any action is selected, continuously rotate the unit to face
+        // the camera's horizontal forward so the aim gizmo and eventual hit arc
+        // always match where the player is looking.
+        if (selectedAction != null && IsMyActionPhase() && !actionUsed)
+        {
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                Vector3 camForward = cam.transform.forward;
+                Vector3 planar = new Vector3(camForward.x, 0f, camForward.z);
+                if (planar.sqrMagnitude > 0.0001f)
+                {
+                    unit.transform.rotation = Quaternion.LookRotation(planar.normalized, Vector3.up);
+                }
+            }
+        }
+
         if (!isCharging)
         {
             return;
