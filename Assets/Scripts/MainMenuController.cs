@@ -18,16 +18,42 @@ public class MainMenuController : MonoBehaviour
     [Header("Teams")]
     [SerializeField] private TeamUI[] teams = new TeamUI[0];
 
+    [Header("Rounds")]
+    [SerializeField] private TMP_Dropdown roundsDropdown;
+    [SerializeField] private int minRounds = 1;
+    [SerializeField] private int maxRounds = 9;
+
     [Header("Unit Count")]
     [SerializeField] private int minUnits = 2;
     [SerializeField] private int maxUnits = 6;
 
     private void Awake()
     {
+        BuildRoundsOptions();
+
         for (int i = 0; i < teams.Length; i++)
         {
             InitializeTeam(teams[i], i + 1);
         }
+    }
+
+    private void BuildRoundsOptions()
+    {
+        if (roundsDropdown == null) return;
+
+        roundsDropdown.options.Clear();
+        for (int i = minRounds; i <= maxRounds; i++)
+            roundsDropdown.options.Add(new TMP_Dropdown.OptionData(i.ToString()));
+
+        int defaultIndex = Mathf.Clamp(3 - minRounds, 0, maxRounds - minRounds);
+        roundsDropdown.value = defaultIndex;
+        roundsDropdown.RefreshShownValue();
+    }
+
+    private int GetSelectedRounds()
+    {
+        if (roundsDropdown == null) return minRounds;
+        return minRounds + Mathf.Clamp(roundsDropdown.value, 0, maxRounds - minRounds);
     }
 
     private void InitializeTeam(TeamUI team, int index)
@@ -115,6 +141,7 @@ public class MainMenuController : MonoBehaviour
         }
 
         MatchSetupData.Clear();
+        MatchSetupData.TotalRounds = GetSelectedRounds();
         foreach (var team in teams)
         {
             if (team == null)

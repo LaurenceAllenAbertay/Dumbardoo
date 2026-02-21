@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.SceneManagement;
 
 public class ShopManager : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class ShopManager : MonoBehaviour
     [SerializeField] private ShopPanelUI shopPanel;
     [SerializeField] private MatchSetupSpawner spawner;
     [SerializeField] private ThirdPersonCameraController cameraController;
+    [SerializeField] private string mainMenuSceneName = "MainMenu";
     [SerializeField] private UnityEvent allTeamsReady;
 
     [Tooltip("GameObjects to hide while the shop is open (e.g. team HUD panels, phase text).")]
@@ -77,11 +79,18 @@ public class ShopManager : MonoBehaviour
 
     private void OnTeamWon(int winningTeamId)
     {
-        if (currencyManager == null || shopPanel == null)
+        if (currencyManager == null || shopPanel == null) return;
+
+        MatchSetupData.RecordWin(winningTeamId);
+
+        if (MatchSetupData.CurrentRound >= MatchSetupData.TotalRounds)
         {
+            EnterShopMode();
+            SceneManager.LoadScene(mainMenuSceneName);
             return;
         }
 
+        MatchSetupData.CurrentRound++;
         EnterShopMode();
 
         shopActive = true;
